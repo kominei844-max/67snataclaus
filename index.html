@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1f5f8b">
 <title>Vorratslager</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
 :root{
   --bg:#eef1f4; --surface:#ffffff; --ink:#1b2735; --muted:#5b6978; --line:#d5dbe2;
@@ -28,10 +31,16 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Avenir Next","Segoe UI",system-ui,sans-serif}
 main{max-width:860px;margin:0 auto;padding:20px 16px 60px}
 h1{font-size:1.8rem;margin:8px 0 4px;letter-spacing:-.01em}
-.lead{margin:0 0 18px;color:var(--muted)}
-button,input,select{font:inherit;color:inherit}
+h2{font-size:1.1rem;margin:18px 0 8px}
+.lead{margin:0 0 14px;color:var(--muted)}
+button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+[hidden]{display:none!important}
+
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:2px solid var(--line);margin-bottom:16px}
+.tabs button{background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 4px;font-weight:600;color:var(--muted)}
+.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
 
 .counters{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
 .counter{border:2px solid transparent;border-radius:10px;padding:10px 12px;text-align:left;background:var(--surface);display:flex;flex-direction:column;gap:2px}
@@ -49,15 +58,20 @@ button{cursor:pointer}
 .btn.small{padding:6px 10px;font-size:.9rem}
 
 .list{display:flex;flex-direction:column;gap:8px}
+.grp{margin:14px 0 2px;font-size:1rem}
 details.item{background:var(--surface);border:1px solid var(--line);border-radius:10px}
 details.item[open]{border-color:var(--accent)}
-summary{list-style:none;cursor:pointer;padding:12px 14px;display:grid;grid-template-columns:1fr auto auto;gap:4px 12px;align-items:center}
+summary{list-style:none;cursor:pointer;padding:12px 14px;display:grid;grid-template-columns:1fr auto auto;gap:6px 12px;align-items:center}
 summary::-webkit-details-marker{display:none}
 summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .15s}
 details[open] summary::after{transform:rotate(-135deg)}
+.head{display:flex;gap:10px;align-items:center;min-width:0}
+.thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;flex:none;background:var(--none-bg)}
 .name{font-weight:650}
 .sub{font-size:.85rem;color:var(--muted)}
 .total{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.meta{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.qk{margin-left:auto;display:flex;gap:6px}
 
 .badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.82rem;font-weight:600;white-space:nowrap}
 .badge.bad{background:var(--bad-bg);color:var(--bad)}
@@ -65,60 +79,141 @@ details[open] summary::after{transform:rotate(-135deg)}
 .badge.ok{background:var(--ok-bg);color:var(--ok)}
 .badge.none{background:var(--none-bg);color:var(--none)}
 
-.detail{border-top:1px solid var(--line);padding:10px 14px 14px}
-.batch{display:grid;grid-template-columns:90px 1fr auto auto;gap:8px;align-items:center;padding:6px 0}
-.batch input{padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);width:100%;min-width:0}
-.addbatch{display:grid;grid-template-columns:90px 1fr auto;gap:8px;align-items:end;margin-top:10px;padding-top:12px;border-top:1px dashed var(--line)}
-.addbatch label{display:flex;flex-direction:column;font-size:.8rem;color:var(--muted);gap:2px}
-.addbatch input{padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);min-width:0}
+.detail{border-top:1px solid var(--line);padding:12px 14px 14px}
+.ifields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.ifields .wide{grid-column:1 / -1}
+.fld{display:flex;flex-direction:column;gap:2px;font-size:.8rem;color:var(--muted);min-width:0}
+.fld input,.fld select,.fld textarea{padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font-size:1rem;min-width:0;width:100%}
+.fld textarea{resize:vertical;min-height:56px}
+.photorow{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.photorow img{width:72px;height:72px;border-radius:10px;object-fit:cover}
+.batch{padding:8px 0;border-top:1px solid var(--line)}
+.brow{display:grid;grid-template-columns:100px 1fr;gap:8px}
+.brow input{padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);width:100%;min-width:0}
+.brow2{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+.grow{flex:1}
+.addbatch{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin-top:10px;padding-top:12px;border-top:1px dashed var(--line)}
+.addbatch label{display:flex;flex-direction:column;font-size:.8rem;color:var(--muted);gap:2px;flex:1 1 110px;min-width:0}
+.addbatch label.chk{flex-direction:row;align-items:center;gap:6px;flex:1 1 100%;font-size:.9rem;color:var(--ink)}
+.addbatch input:not([type=checkbox]){padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);min-width:0}
+.addbatch .frz{display:none}
+.addbatch.isfrozen .frz{display:flex}
+.addbatch.isfrozen .nd{display:none}
 .itemfoot{margin-top:12px;display:flex;justify-content:flex-end}
+
+.row{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.row .acts{grid-column:1 / -1;display:flex;gap:6px;flex-wrap:wrap}
+.shoprow{display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.shoprow label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer}
+.shoprow input[type=checkbox]{width:20px;height:20px}
+.shoprow.done span{text-decoration:line-through;color:var(--muted)}
+.shopform{display:flex;gap:8px;margin:10px 0}
+.shopform input{flex:1;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.stat b{font-size:1.5rem;display:block}
+.logrow{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:7px 2px;border-bottom:1px solid var(--line)}
 
 .empty{padding:28px 16px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:10px}
 
-dialog{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);padding:20px;width:min(440px,calc(100vw - 24px))}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);padding:20px;width:min(460px,calc(100vw - 24px))}
 dialog::backdrop{background:rgba(0,0,0,.45)}
 dialog h2{margin:0 0 12px;font-size:1.2rem}
+dialog video{width:100%;max-height:50vh;border-radius:8px;background:#000;margin-bottom:10px}
 .field{display:flex;flex-direction:column;gap:3px;margin-bottom:10px;font-size:.88rem;color:var(--muted)}
-.field input,.field select{padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font-size:1rem}
+.field input,.field select{padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font-size:1rem;min-width:0}
+.field.chk{flex-direction:row;align-items:center;gap:8px;color:var(--ink)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.inline{display:flex;gap:8px;align-items:flex-end}
+.inline .field{flex:1}
 .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
 
 footer{margin-top:28px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;color:var(--muted);font-size:.85rem}
-footer p{flex:1 1 280px;margin:0}
+footer p{flex:1 1 100%;margin:0}
+
+.toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;max-width:90vw}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+#printArea{display:none}
 
 @media (max-width:520px){
   .counters{gap:6px}
-  summary{grid-template-columns:1fr auto}
-  summary .total{grid-column:1;text-align:left}
-  summary .badge{grid-column:1}
-  summary::after{grid-row:1;grid-column:2}
-  .batch{grid-template-columns:80px 1fr auto}
-  .batch .rel{grid-column:1 / -1;order:5}
+  .stats{grid-template-columns:1fr}
 }
-@media (prefers-reduced-motion:reduce){summary::after{transition:none}}
+@media (prefers-reduced-motion:reduce){summary::after,.toast{transition:none}}
+@media print{
+  body{background:#fff;color:#000}
+  main,.toast,dialog{display:none!important}
+  #printArea{display:block}
+  #printArea h1{font-size:18pt}
+  #printArea table{width:100%;border-collapse:collapse}
+  #printArea th,#printArea td{border:1px solid #888;padding:4px 6px;text-align:left;font-size:11pt;vertical-align:top}
+}
 </style>
 </head>
 <body>
 <main>
   <h1>Vorratslager</h1>
-  <p class="lead">Alle Lebensmittel und Gegenstände im Haus. Auf einen Eintrag tippen, um die Chargen mit ihren Ablaufdaten zu sehen.</p>
+  <p class="lead">Alle Lebensmittel und Gegenstände im Haus mit ihren Ablaufdaten.</p>
 
-  <div class="counters" id="counters"></div>
+  <nav class="tabs" role="tablist" aria-label="Bereiche">
+    <button type="button" role="tab" data-tab="lager" aria-selected="true" id="tabLager">Lager</button>
+    <button type="button" role="tab" data-tab="soon" aria-selected="false" id="tabSoon">Aufbrauchen</button>
+    <button type="button" role="tab" data-tab="shop" aria-selected="false" id="tabShop">Einkauf</button>
+    <button type="button" role="tab" data-tab="log" aria-selected="false" id="tabLog">Verlauf</button>
+  </nav>
 
-  <div class="toolbar">
-    <input type="search" id="search" placeholder="Suchen (Name oder Ort)" aria-label="Suchen">
-    <select id="catFilter" aria-label="Kategorie"></select>
-    <select id="sort" aria-label="Sortierung">
-      <option value="expiry">Nächstes Ablaufdatum zuerst</option>
-      <option value="name">Name A bis Z</option>
-    </select>
-    <button class="btn primary" id="addItemBtn" type="button">Artikel hinzufügen</button>
-  </div>
+  <!-- Lager -->
+  <section id="panel-lager" role="tabpanel">
+    <div class="counters" id="counters"></div>
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="Suchen (Name oder Ort)" aria-label="Suchen">
+      <select id="catFilter" aria-label="Kategorie"></select>
+      <select id="sort" aria-label="Sortierung">
+        <option value="expiry">Nächstes Ablaufdatum zuerst</option>
+        <option value="name">Name A bis Z</option>
+      </select>
+      <select id="viewSel" aria-label="Ansicht">
+        <option value="liste">Ansicht: Liste</option>
+        <option value="ort">Ansicht: Nach Lagerort</option>
+      </select>
+      <button class="btn" id="scanBtn" type="button">Barcode scannen</button>
+      <button class="btn primary" id="addItemBtn" type="button">Artikel hinzufügen</button>
+    </div>
+    <div class="list" id="list"></div>
+  </section>
 
-  <div class="list" id="list"></div>
+  <!-- Aufbrauchen -->
+  <section id="panel-soon" role="tabpanel" hidden>
+    <p class="lead">Chargen, die abgelaufen sind oder bald ablaufen. Zuerst verbrauchen, was oben steht.</p>
+    <div class="list" id="soonList"></div>
+  </section>
+
+  <!-- Einkauf -->
+  <section id="panel-shop" role="tabpanel" hidden>
+    <div id="shopSuggest"></div>
+    <h2>Einkaufsliste</h2>
+    <form class="shopform" id="shopForm">
+      <input id="shopText" maxlength="100" placeholder="Etwas ergänzen, z. B. Butter" aria-label="Neuer Eintrag">
+      <button class="btn primary" type="submit">Hinzufügen</button>
+    </form>
+    <div class="list" id="shopList"></div>
+    <div class="bar">
+      <button class="btn" type="button" id="shareBtn">Teilen oder kopieren</button>
+      <button class="btn" type="button" id="clearDoneBtn">Erledigte löschen</button>
+    </div>
+  </section>
+
+  <!-- Verlauf -->
+  <section id="panel-log" role="tabpanel" hidden>
+    <div class="stats" id="logStats"></div>
+    <div id="logList"></div>
+    <div class="bar"><button class="btn danger small" type="button" id="clearLogBtn">Verlauf leeren</button></div>
+  </section>
 
   <footer>
-    <p>Die Daten bleiben nur in diesem Browser gespeichert. Mit Export und Import kannst du sie sichern oder auf ein anderes Gerät mitnehmen.</p>
+    <p>Die Daten bleiben nur in diesem Browser gespeichert. Mit Export und Import sicherst du sie oder nimmst sie auf ein anderes Gerät mit.</p>
     <label>Warnung ab
       <select id="warnDays" aria-label="Warnung ab Tagen vor Ablauf">
         <option value="7">7 Tagen</option><option value="14">14 Tagen</option>
@@ -127,16 +222,25 @@ footer p{flex:1 1 280px;margin:0}
     </label>
     <button class="btn small" id="exportBtn" type="button">Exportieren</button>
     <button class="btn small" id="importBtn" type="button">Importieren</button>
+    <button class="btn small" id="icsBtn" type="button">Erinnerungen für den Kalender</button>
+    <button class="btn small" id="printBtn" type="button">Drucken</button>
     <input type="file" id="importFile" accept="application/json" hidden>
   </footer>
 </main>
 
+<!-- Artikel hinzufügen -->
 <dialog id="dlg">
   <form id="itemForm">
     <h2>Artikel hinzufügen</h2>
     <label class="field">Name
       <input id="fName" required maxlength="80" placeholder="z. B. Eistee">
     </label>
+    <div class="inline">
+      <label class="field">Barcode (optional)
+        <input id="fBarcode" inputmode="numeric" maxlength="20" placeholder="Nummer unter dem Strichcode">
+      </label>
+      <button class="btn" type="button" id="fLookup" style="margin-bottom:10px">Name suchen</button>
+    </div>
     <div class="row2">
       <label class="field">Kategorie
         <select id="fCat"></select>
@@ -155,9 +259,21 @@ footer p{flex:1 1 280px;margin:0}
         <datalist id="unitList"><option value="Stück"><option value="Liter"><option value="kg"><option value="g"><option value="Packungen"><option value="Dosen"><option value="Flaschen"></datalist>
       </label>
     </div>
-    <label class="field">Ablaufdatum (leer lassen, wenn nichts abläuft)
+    <label class="field">Mindestbestand (optional, darunter wird nachgekauft)
+      <input id="fMin" type="number" min="0" step="any" placeholder="z. B. 4">
+    </label>
+    <label class="field chk"><input type="checkbox" id="fFrozen"> Eingefroren</label>
+    <label class="field" id="fDateWrap">Ablaufdatum (leer lassen, wenn nichts abläuft)
       <input id="fDate" type="date">
     </label>
+    <div class="row2" id="fFrozenWrap" hidden>
+      <label class="field">Eingefroren am
+        <input id="fFDate" type="date">
+      </label>
+      <label class="field">Haltbar (Monate)
+        <input id="fMonths" type="number" min="1" step="1" value="6">
+      </label>
+    </div>
     <div class="actions">
       <button class="btn" type="button" id="cancelBtn">Abbrechen</button>
       <button class="btn primary" type="submit">Speichern</button>
@@ -165,41 +281,82 @@ footer p{flex:1 1 280px;margin:0}
   </form>
 </dialog>
 
+<!-- Barcode scannen -->
+<dialog id="scanDlg">
+  <h2>Barcode scannen</h2>
+  <video id="video" playsinline muted hidden></video>
+  <p class="sub" id="scanMsg"></p>
+  <form id="scanForm">
+    <div class="inline">
+      <label class="field">Oder Nummer eintippen
+        <input id="scanCode" inputmode="numeric" maxlength="20" placeholder="z. B. 4001234567890">
+      </label>
+      <button class="btn primary" type="submit" style="margin-bottom:10px">Suchen</button>
+    </div>
+  </form>
+  <div class="actions"><button class="btn" type="button" id="scanClose">Schließen</button></div>
+</dialog>
+
+<div id="printArea"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
 const KEY = 'vorratslager-v1';
 const CATS = ['Lebensmittel','Getränke','Haushalt','Hygiene','Werkzeug','Sonstiges'];
 const $ = id => document.getElementById(id);
-const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+const pad = n => String(n).padStart(2, '0');
+const round = x => Math.round(x * 1000) / 1000;
 
 let state = load();
 let openIds = new Set();
 let statusFilter = '';
+let currentTab = 'lager';
 
+/* ---------- Daten ---------- */
 function seed(){
-  return { warnDays: 14, items: [
+  return { warnDays: 14, log: [], shop: [], items: [
     { id: uid(), name: 'Eistee', category: 'Getränke', location: 'Keller', unit: 'Liter', batches: [
       { id: uid(), amount: 10, expiry: '2027-09-10' },
       { id: uid(), amount: 10, expiry: '2027-08-07' } ] },
-    { id: uid(), name: 'Nudeln', category: 'Lebensmittel', location: 'Vorratsschrank', unit: 'Packungen', batches: [
+    { id: uid(), name: 'Nudeln', category: 'Lebensmittel', location: 'Vorratsschrank', unit: 'Packungen', min: 4, batches: [
       { id: uid(), amount: 6, expiry: '2028-03-15' } ] },
     { id: uid(), name: 'Glühbirnen E27', category: 'Haushalt', location: 'Abstellraum', unit: 'Stück', batches: [
       { id: uid(), amount: 4, expiry: null } ] }
   ]};
 }
+function normalize(s){
+  return { warnDays: s.warnDays || 14, items: s.items, log: Array.isArray(s.log) ? s.log : [], shop: Array.isArray(s.shop) ? s.shop : [] };
+}
 function load(){
   try {
     const s = JSON.parse(localStorage.getItem(KEY));
-    if (s && Array.isArray(s.items)) return { warnDays: s.warnDays || 14, items: s.items };
+    if (s && Array.isArray(s.items)) return normalize(s);
   } catch (e) {}
   return seed();
 }
-function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+let warned = false;
+function save(){
+  try { localStorage.setItem(KEY, JSON.stringify(state)); }
+  catch (e) { if (!warned) { warned = true; toast('Speicher voll. Entferne Fotos oder leere den Verlauf.'); } }
+}
 
+/* ---------- Hilfsfunktionen ---------- */
 function today(){ const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
 function parseDate(s){ const [y,m,d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+function toISO(d){ return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
 function fmtDate(s){ return parseDate(s).toLocaleDateString('de-AT', { day:'2-digit', month:'2-digit', year:'numeric' }); }
 function fmtNum(n){ return Number(n).toLocaleString('de-DE', { maximumFractionDigits: 2 }); }
+function addMonths(s, m){
+  const d = parseDate(s), day = d.getDate();
+  d.setMonth(d.getMonth() + m);
+  if (d.getDate() !== day) d.setDate(0);
+  return toISO(d);
+}
+const expKey = b => b.expiry ? parseDate(b.expiry).getTime() : 8.64e15;
+const byExpiry = (a, b) => expKey(a) - expKey(b);
+const findItem = id => state.items.find(i => i.id === id);
 
 function stat(expiry){
   if (!expiry) return { key:'none', days:Infinity };
@@ -225,10 +382,43 @@ function itemStat(item){
   }
   return best;
 }
-function total(item){ return item.batches.reduce((a,b) => a + (Number(b.amount) || 0), 0); }
+const total = item => item.batches.reduce((a, b) => a + (Number(b.amount) || 0), 0);
+const usable = item => item.batches.reduce((a, b) => a + (b.amount > 0 && stat(b.expiry).key !== 'bad' ? Number(b.amount) : 0), 0);
+const isLow = item => item.min > 0 && usable(item) < item.min;
 
+function logAdd(type, item, amount){
+  state.log.unshift({ t: new Date().toISOString(), type, name: item.name, amount: round(amount), unit: item.unit });
+  if (state.log.length > 1000) state.log.length = 1000;
+}
+function consume(item, n){
+  let left = n, taken = 0;
+  for (const b of item.batches.filter(x => x.amount > 0).sort(byExpiry)) {
+    if (left <= 0) break;
+    const t = Math.min(b.amount, left);
+    b.amount = round(b.amount - t); left -= t; taken += t;
+  }
+  item.batches = item.batches.filter(b => b.amount > 0);
+  if (taken > 0) logAdd('verbraucht', item, taken);
+}
+function addOne(item){
+  const bs = [...item.batches].sort(byExpiry);
+  if (bs.length) { const last = bs[bs.length - 1]; last.amount = round(last.amount + 1); }
+  else item.batches.push({ id: uid(), amount: 1, expiry: null });
+  logAdd('hinzugefügt', item, 1);
+}
+
+let tt;
+function toast(msg){
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ---------- Anzeige ---------- */
 function render(){
-  // Zähler
+  renderCounters(); renderLager(); renderSoon(); renderShop(); renderLog(); updateTabs();
+}
+
+function renderCounters(){
   let bad = 0, warn = 0, ok = 0;
   for (const i of state.items) for (const b of i.batches) {
     if (!(b.amount > 0)) continue;
@@ -240,14 +430,13 @@ function render(){
     ['warn', warn, `laufen in ${state.warnDays} Tagen ab`],
     ['ok', ok, 'noch lange haltbar']
   ].map(([k,n,l]) => `<button type="button" class="counter ${k}" data-status="${k}" aria-pressed="${statusFilter === k}"><b>${n}</b><span>${l}</span></button>`).join('');
+}
 
-  // Kategorien-Filter (Auswahl erhalten)
+function renderLager(){
   const cur = $('catFilter').value;
   const cats = [...new Set([...CATS, ...state.items.map(i => i.category)])];
   $('catFilter').innerHTML = '<option value="">Alle Kategorien</option>' + cats.map(c => `<option>${esc(c)}</option>`).join('');
   $('catFilter').value = cats.includes(cur) ? cur : '';
-
-  // Orte für Autovervollständigung
   $('locList').innerHTML = [...new Set(state.items.map(i => i.location).filter(Boolean))].map(l => `<option value="${esc(l)}">`).join('');
 
   const q = $('search').value.trim().toLowerCase();
@@ -264,35 +453,81 @@ function render(){
     $('list').innerHTML = `<div class="empty">${state.items.length ? 'Nichts gefunden. Ändere die Suche oder den Filter.' : 'Noch nichts im Lager. Füge deinen ersten Artikel hinzu.'}</div>`;
     return;
   }
-  $('list').innerHTML = items.map(itemHtml).join('');
+  if ($('viewSel').value === 'ort') {
+    const groups = {};
+    items.forEach(i => { const k = i.location || 'Ohne Lagerort'; (groups[k] = groups[k] || []).push(i); });
+    $('list').innerHTML = Object.keys(groups).sort((a,b) => a.localeCompare(b, 'de'))
+      .map(k => `<h2 class="grp">${esc(k)} <span class="sub">(${groups[k].length})</span></h2>` + groups[k].map(itemHtml).join('')).join('');
+  } else {
+    $('list').innerHTML = items.map(itemHtml).join('');
+  }
 }
 
 function itemHtml(item){
   const s = itemStat(item);
-  const badge = s.key === 'none'
-    ? '<span class="badge none">kein Ablaufdatum</span>'
-    : `<span class="badge ${s.key}">${s.key === 'bad' ? 'Abgelaufen ' : 'bis '}${fmtDate(s.expiry)}</span>`;
-  const batches = [...item.batches].sort((a,b) => (a.expiry ? parseDate(a.expiry).getTime() : Infinity) - (b.expiry ? parseDate(b.expiry).getTime() : Infinity));
+  const active = item.batches.some(b => b.amount > 0);
+  let badge;
+  if (!active) badge = '<span class="badge none">leer</span>';
+  else if (s.key === 'none') badge = '<span class="badge none">kein Ablaufdatum</span>';
+  else badge = `<span class="badge ${s.key}">${s.key === 'bad' ? 'Abgelaufen ' : 'bis '}${fmtDate(s.expiry)}</span>`;
+  const low = isLow(item) ? '<span class="badge warn">Nachkaufen</span>' : '';
+  const frozenAny = item.batches.some(b => b.frozen && b.amount > 0) ? '<span class="badge none">eingefroren</span>' : '';
+
+  const batches = [...item.batches].sort(byExpiry);
   const rows = batches.map(b => {
     const st = stat(b.expiry);
     return `<div class="batch" data-item="${item.id}" data-batch="${b.id}">
-      <input type="number" min="0" step="any" value="${b.amount}" data-field="amount" aria-label="Menge in ${esc(item.unit)}">
-      <input type="date" value="${b.expiry || ''}" data-field="expiry" aria-label="Ablaufdatum">
-      <span class="badge ${st.key} rel">${rel(st.days)}</span>
-      <button class="btn small danger" type="button" data-action="delbatch">Löschen</button>
+      <div class="brow">
+        <input type="number" min="0" step="any" value="${b.amount}" data-field="amount" aria-label="Menge in ${esc(item.unit)}" title="Menge 0 löscht die Charge ohne Eintrag im Verlauf">
+        <input type="date" value="${b.expiry || ''}" data-field="expiry" aria-label="Ablaufdatum">
+      </div>
+      <div class="brow2">
+        <span class="badge ${st.key}">${rel(st.days)}</span>
+        ${b.frozen ? `<span class="sub">eingefroren am ${fmtDate(b.frozen)}</span>` : ''}
+        <span class="grow"></span>
+        <button class="btn small" type="button" data-action="eaten">Verbraucht</button>
+        <button class="btn small danger" type="button" data-action="trash">Weggeworfen</button>
+      </div>
     </div>`;
   }).join('');
+
+  const catOpts = [...new Set([...CATS, item.category])].map(c => `<option${c === item.category ? ' selected' : ''}>${esc(c)}</option>`).join('');
+
   return `<details class="item" data-id="${item.id}" ${openIds.has(item.id) ? 'open' : ''}>
     <summary>
-      <div><div class="name">${esc(item.name)}</div><div class="sub">${esc(item.category)}${item.location ? ', ' + esc(item.location) : ''}</div></div>
+      <div class="head">
+        ${item.photo ? `<img class="thumb" src="${item.photo}" alt="">` : ''}
+        <div><div class="name">${esc(item.name)}</div><div class="sub">${esc(item.category)}${item.location ? ', ' + esc(item.location) : ''}</div></div>
+      </div>
       <div class="total"><b>${fmtNum(total(item))}</b> ${esc(item.unit)}</div>
-      ${badge}
+      <div class="meta">
+        ${badge}${low}${frozenAny}
+        <span class="qk">
+          <button class="btn small" type="button" data-action="minus" data-item="${item.id}" aria-label="Eins von ${esc(item.name)} entnehmen">−1</button>
+          <button class="btn small" type="button" data-action="plus" data-item="${item.id}" aria-label="Eins zu ${esc(item.name)} hinzufügen">+1</button>
+        </span>
+      </div>
     </summary>
-    <div class="detail">
+    <div class="detail" data-item="${item.id}">
+      <div class="photorow">
+        ${item.photo ? `<img src="${item.photo}" alt="Foto von ${esc(item.name)}">` : ''}
+        <label class="btn small">${item.photo ? 'Foto ersetzen' : 'Foto hinzufügen'}<input type="file" accept="image/*" data-photo="${item.id}" hidden></label>
+        ${item.photo ? `<button class="btn small danger" type="button" data-action="delphoto" data-item="${item.id}">Foto entfernen</button>` : ''}
+      </div>
+      <div class="ifields">
+        <label class="fld">Mindestbestand (${esc(item.unit)})<input type="number" min="0" step="any" value="${item.min > 0 ? item.min : ''}" data-ifield="min" placeholder="kein"></label>
+        <label class="fld">Lagerort<input value="${esc(item.location || '')}" data-ifield="location" maxlength="60"></label>
+        <label class="fld">Kategorie<select data-ifield="category">${catOpts}</select></label>
+        <label class="fld">Barcode<input value="${esc(item.barcode || '')}" data-ifield="barcode" inputmode="numeric" maxlength="20"></label>
+        <label class="fld wide">Notiz<textarea data-ifield="note" maxlength="500">${esc(item.note || '')}</textarea></label>
+      </div>
       ${rows || '<div class="sub">Keine Chargen vorhanden.</div>'}
       <div class="addbatch" data-item="${item.id}">
         <label>Menge<input type="number" min="0" step="any" value="1" data-new="amount"></label>
-        <label>Ablaufdatum<input type="date" data-new="expiry"></label>
+        <label class="nd">Ablaufdatum<input type="date" data-new="expiry"></label>
+        <label class="chk"><input type="checkbox" data-new="frozen"> Eingefroren</label>
+        <label class="frz">Eingefroren am<input type="date" data-new="fdate" value="${toISO(today())}"></label>
+        <label class="frz">Haltbar (Monate)<input type="number" min="1" step="1" value="6" data-new="months"></label>
         <button class="btn small primary" type="button" data-action="addbatch">Charge hinzufügen</button>
       </div>
       <div class="itemfoot"><button class="btn small danger" type="button" data-action="delitem" data-item="${item.id}">Artikel löschen</button></div>
@@ -300,100 +535,394 @@ function itemHtml(item){
   </details>`;
 }
 
-const findItem = id => state.items.find(i => i.id === id);
+function soonBatches(){
+  const out = [];
+  for (const i of state.items) for (const b of i.batches) {
+    if (!(b.amount > 0) || !b.expiry) continue;
+    const s = stat(b.expiry);
+    if (s.key === 'bad' || s.key === 'warn') out.push({ i, b, s });
+  }
+  return out.sort((a, c) => a.s.days - c.s.days);
+}
+function renderSoon(){
+  const list = soonBatches();
+  if (!list.length) { $('soonList').innerHTML = `<div class="empty">Nichts läuft in den nächsten ${state.warnDays} Tagen ab.</div>`; return; }
+  $('soonList').innerHTML = list.map(({ i, b, s }) => `
+    <div class="row" data-item="${i.id}" data-batch="${b.id}">
+      <div><div class="name">${esc(i.name)}</div><div class="sub">${fmtNum(b.amount)} ${esc(i.unit)}${i.location ? ', ' + esc(i.location) : ''}</div></div>
+      <div><span class="badge ${s.key}">${s.key === 'bad' ? 'Abgelaufen ' : 'bis '}${fmtDate(b.expiry)}</span><div class="sub" style="text-align:right">${rel(s.days)}</div></div>
+      <div class="acts">
+        <button class="btn small" type="button" data-action="eaten">Verbraucht</button>
+        <button class="btn small danger" type="button" data-action="trash">Weggeworfen</button>
+      </div>
+    </div>`).join('');
+}
 
-// Klicks
-$('list').addEventListener('click', e => {
+function lowItems(){
+  return state.items.filter(i => isLow(i) && !state.shop.some(s => s.itemId === i.id && !s.done));
+}
+const needText = i => `${i.name}, ${fmtNum(Math.ceil((i.min - usable(i)) * 100) / 100)} ${i.unit}`;
+function renderShop(){
+  const low = lowItems();
+  $('shopSuggest').innerHTML = low.length ? `
+    <h2>Fehlt im Lager</h2>
+    <div class="list">${low.map(i => `
+      <div class="row"><div><div class="name">${esc(i.name)}</div><div class="sub">${fmtNum(usable(i))} von mindestens ${fmtNum(i.min)} ${esc(i.unit)} vorhanden</div></div>
+      <button class="btn small primary" type="button" data-action="addlow" data-item="${i.id}">Auf die Liste</button></div>`).join('')}</div>
+    <div class="bar"><button class="btn" type="button" data-action="addall">Alle auf die Liste</button></div>` : '';
+  $('shopList').innerHTML = state.shop.length
+    ? state.shop.map(s => `<div class="shoprow ${s.done ? 'done' : ''}"><label><input type="checkbox" data-shop="${s.id}" ${s.done ? 'checked' : ''}><span>${esc(s.text)}</span></label><button class="btn small" type="button" data-action="delshop" data-shop="${s.id}">Entfernen</button></div>`).join('')
+    : '<div class="empty">Die Liste ist leer.</div>';
+}
+
+function renderLog(){
+  const since = Date.now() - 30 * 864e5;
+  const recent = state.log.filter(l => new Date(l.t).getTime() >= since);
+  const eaten = recent.filter(l => l.type === 'verbraucht').length;
+  const trashed = recent.filter(l => l.type === 'weggeworfen').length;
+  const counts = {};
+  state.log.filter(l => l.type === 'weggeworfen').forEach(l => { counts[l.name] = (counts[l.name] || 0) + 1; });
+  const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  $('logStats').innerHTML = `
+    <div class="stat"><b>${eaten}</b><span class="sub">Mal verbraucht (30 Tage)</span></div>
+    <div class="stat"><b>${trashed}</b><span class="sub">Mal weggeworfen (30 Tage)</span></div>
+    ${top.length ? `<div class="stat" style="grid-column:1 / -1"><span class="sub">Am häufigsten weggeworfen</span><div>${top.map(([n, c]) => `${esc(n)} (${c}x)`).join(', ')}</div></div>` : ''}`;
+  const cls = { 'verbraucht':'ok', 'weggeworfen':'bad', 'hinzugefügt':'none' };
+  $('logList').innerHTML = state.log.length
+    ? state.log.slice(0, 100).map(l => `<div class="logrow"><span class="badge ${cls[l.type] || 'none'}">${esc(l.type)}</span><span>${esc(l.name)}, ${fmtNum(l.amount)} ${esc(l.unit)}</span><span class="sub">${new Date(l.t).toLocaleString('de-AT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}</span></div>`).join('')
+    : '<div class="empty">Noch keine Einträge. Hier erscheint, was du verbrauchst, hinzufügst oder wegwirfst.</div>';
+}
+
+function updateTabs(){
+  const n = soonBatches().length;
+  const open = state.shop.filter(s => !s.done).length + lowItems().length;
+  $('tabSoon').textContent = n ? `Aufbrauchen (${n})` : 'Aufbrauchen';
+  $('tabShop').textContent = open ? `Einkauf (${open})` : 'Einkauf';
+}
+function switchTab(name){
+  currentTab = name;
+  for (const t of ['lager','soon','shop','log']) {
+    $('panel-' + t).hidden = t !== name;
+  }
+  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
+}
+document.querySelector('.tabs').addEventListener('click', e => {
+  const b = e.target.closest('[data-tab]'); if (b) switchTab(b.dataset.tab);
+});
+
+/* ---------- Aktionen in Lager und Aufbrauchen ---------- */
+function onAction(e){
   const btn = e.target.closest('[data-action]');
   if (!btn) return;
+  e.preventDefault();
   const act = btn.dataset.action;
-  if (act === 'delbatch') {
-    const row = btn.closest('.batch'); const item = findItem(row.dataset.item);
-    item.batches = item.batches.filter(b => b.id !== row.dataset.batch);
+  const row = btn.closest('[data-batch]');
+  if (act === 'minus') consume(findItem(btn.dataset.item), 1);
+  else if (act === 'plus') addOne(findItem(btn.dataset.item));
+  else if (act === 'eaten' || act === 'trash') {
+    const item = findItem(row.dataset.item);
+    const b = item.batches.find(x => x.id === row.dataset.batch);
+    logAdd(act === 'eaten' ? 'verbraucht' : 'weggeworfen', item, b.amount);
+    item.batches = item.batches.filter(x => x !== b);
   } else if (act === 'addbatch') {
     const box = btn.closest('.addbatch'); const item = findItem(box.dataset.item);
-    const amount = parseFloat(box.querySelector('[data-new=amount]').value);
-    const expiry = box.querySelector('[data-new=expiry]').value || null;
-    if (!(amount > 0)) { box.querySelector('[data-new=amount]').focus(); return; }
-    item.batches.push({ id: uid(), amount, expiry });
+    const q = k => box.querySelector(`[data-new=${k}]`);
+    const amount = parseFloat(q('amount').value);
+    if (!(amount > 0)) { q('amount').focus(); return; }
+    let expiry = q('expiry').value || null, frozen = null;
+    if (q('frozen').checked) {
+      frozen = q('fdate').value || toISO(today());
+      expiry = addMonths(frozen, Math.max(1, parseInt(q('months').value, 10) || 6));
+    }
+    item.batches.push({ id: uid(), amount, expiry, frozen });
+    logAdd('hinzugefügt', item, amount);
   } else if (act === 'delitem') {
     const item = findItem(btn.dataset.item);
     if (!confirm(`„${item.name}“ komplett löschen?`)) return;
     state.items = state.items.filter(i => i.id !== item.id);
+  } else if (act === 'delphoto') {
+    delete findItem(btn.dataset.item).photo;
   }
   save(); render();
-});
-// Felder ändern
-$('list').addEventListener('change', e => {
-  const f = e.target.dataset.field;
+}
+$('list').addEventListener('click', onAction);
+$('soonList').addEventListener('click', onAction);
+
+$('list').addEventListener('change', async e => {
+  const t = e.target;
+  if (t.dataset.new === 'frozen') { t.closest('.addbatch').classList.toggle('isfrozen', t.checked); return; }
+  if (t.dataset.photo) {
+    const file = t.files[0]; if (!file) return;
+    try { findItem(t.dataset.photo).photo = await resizeImage(file); save(); render(); }
+    catch (err) { toast('Das Foto konnte nicht gelesen werden.'); }
+    return;
+  }
+  if (t.dataset.ifield) {
+    const item = findItem(t.closest('.detail').dataset.item);
+    const f = t.dataset.ifield;
+    item[f] = f === 'min' ? Math.max(0, parseFloat(t.value) || 0) : t.value.trim();
+    save(); render(); return;
+  }
+  const f = t.dataset.field;
   if (!f) return;
-  const row = e.target.closest('.batch');
-  const batch = findItem(row.dataset.item).batches.find(b => b.id === row.dataset.batch);
-  if (f === 'amount') batch.amount = Math.max(0, parseFloat(e.target.value) || 0);
-  if (f === 'expiry') batch.expiry = e.target.value || null;
+  const rowEl = t.closest('.batch');
+  const item = findItem(rowEl.dataset.item);
+  const batch = item.batches.find(b => b.id === rowEl.dataset.batch);
+  if (f === 'amount') {
+    batch.amount = Math.max(0, parseFloat(t.value) || 0);
+    if (batch.amount === 0) item.batches = item.batches.filter(b => b !== batch);
+  }
+  if (f === 'expiry') { batch.expiry = t.value || null; batch.frozen = null; }
   save(); render();
 });
-// Offen-Zustand merken
 $('list').addEventListener('toggle', e => {
   const d = e.target; if (!d.matches('details.item')) return;
   d.open ? openIds.add(d.dataset.id) : openIds.delete(d.dataset.id);
 }, true);
 
-// Zähler als Filter
+function resizeImage(file, max = 320){
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const r = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      res(c.toDataURL('image/jpeg', .72));
+    };
+    img.onerror = rej;
+    img.src = url;
+  });
+}
+
 $('counters').addEventListener('click', e => {
   const b = e.target.closest('[data-status]'); if (!b) return;
   statusFilter = statusFilter === b.dataset.status ? '' : b.dataset.status;
   render();
 });
-['search','catFilter','sort'].forEach(id => $(id).addEventListener('input', render));
+['search','catFilter','sort','viewSel'].forEach(id => $(id).addEventListener('input', render));
 
-// Warnschwelle
 $('warnDays').value = String(state.warnDays);
 $('warnDays').addEventListener('change', e => { state.warnDays = Number(e.target.value); save(); render(); });
 
-// Dialog
+/* ---------- Einkauf ---------- */
+function addShop(text, itemId){
+  state.shop.push({ id: uid(), text, itemId: itemId || null, done: false });
+}
+$('panel-shop').addEventListener('click', e => {
+  const btn = e.target.closest('[data-action]'); if (!btn) return;
+  const act = btn.dataset.action;
+  if (act === 'addlow') { const i = findItem(btn.dataset.item); addShop(needText(i), i.id); }
+  else if (act === 'addall') lowItems().forEach(i => addShop(needText(i), i.id));
+  else if (act === 'delshop') state.shop = state.shop.filter(s => s.id !== btn.dataset.shop);
+  save(); render();
+});
+$('panel-shop').addEventListener('change', e => {
+  const id = e.target.dataset.shop; if (!id) return;
+  const s = state.shop.find(x => x.id === id); s.done = e.target.checked;
+  save(); render();
+});
+$('shopForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const text = $('shopText').value.trim(); if (!text) return;
+  addShop(text); $('shopText').value = ''; save(); render();
+});
+$('clearDoneBtn').addEventListener('click', () => { state.shop = state.shop.filter(s => !s.done); save(); render(); });
+$('shareBtn').addEventListener('click', async () => {
+  const open = state.shop.filter(s => !s.done);
+  if (!open.length) { toast('Die Liste ist leer.'); return; }
+  const text = 'Einkaufsliste\n' + open.map(s => '- ' + s.text).join('\n');
+  try {
+    if (navigator.share) { await navigator.share({ title: 'Einkaufsliste', text }); return; }
+    await navigator.clipboard.writeText(text); toast('In die Zwischenablage kopiert.');
+  } catch (err) { if (err.name !== 'AbortError') toast('Kopieren ist hier nicht möglich.'); }
+});
+
+/* ---------- Verlauf ---------- */
+$('clearLogBtn').addEventListener('click', () => {
+  if (!confirm('Den ganzen Verlauf löschen?')) return;
+  state.log = []; save(); render();
+});
+
+/* ---------- Artikel hinzufügen ---------- */
 $('fCat').innerHTML = CATS.map(c => `<option>${c}</option>`).join('');
-$('addItemBtn').addEventListener('click', () => { $('itemForm').reset(); $('dlg').showModal(); $('fName').focus(); });
+function syncFrozen(){
+  const f = $('fFrozen').checked;
+  $('fFrozenWrap').hidden = !f; $('fDateWrap').hidden = f;
+}
+$('fFrozen').addEventListener('change', syncFrozen);
+function openAddDialog(code){
+  $('itemForm').reset();
+  $('fFDate').value = toISO(today());
+  $('fBarcode').value = code || '';
+  syncFrozen();
+  $('dlg').showModal();
+  $('fName').focus();
+}
+$('addItemBtn').addEventListener('click', () => openAddDialog(''));
 $('cancelBtn').addEventListener('click', () => $('dlg').close());
+
+async function lookupBarcode(code){
+  try {
+    const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json?fields=product_name,brands`);
+    const j = await r.json();
+    if (j.status === 1 && j.product && j.product.product_name) {
+      const brand = (j.product.brands || '').split(',')[0].trim();
+      return j.product.product_name + (brand ? ` (${brand})` : '');
+    }
+  } catch (e) {}
+  return null;
+}
+async function fillFromBarcode(){
+  const code = $('fBarcode').value.trim();
+  if (!code) { $('fBarcode').focus(); return; }
+  const name = await lookupBarcode(code);
+  if (name) { if (!$('fName').value.trim()) $('fName').value = name; toast('Name gefunden.'); }
+  else toast('Zu dieser Nummer wurde nichts gefunden. Trag den Namen selbst ein.');
+}
+$('fLookup').addEventListener('click', fillFromBarcode);
+
 $('itemForm').addEventListener('submit', e => {
   e.preventDefault();
   const name = $('fName').value.trim();
   const amount = parseFloat($('fAmount').value);
   if (!name || !(amount >= 0)) return;
-  const batch = { id: uid(), amount, expiry: $('fDate').value || null };
-  let item = state.items.find(i => i.name.toLowerCase() === name.toLowerCase());
-  if (item) item.batches.push(batch);
-  else {
-    item = { id: uid(), name, category: $('fCat').value, location: $('fLoc').value.trim(), unit: $('fUnit').value.trim() || 'Stück', batches: [batch] };
+  let expiry = $('fDate').value || null, frozen = null;
+  if ($('fFrozen').checked) {
+    frozen = $('fFDate').value || toISO(today());
+    expiry = addMonths(frozen, Math.max(1, parseInt($('fMonths').value, 10) || 6));
+  }
+  const batch = { id: uid(), amount, expiry, frozen };
+  const barcode = $('fBarcode').value.trim();
+  const min = Math.max(0, parseFloat($('fMin').value) || 0);
+  let item = (barcode && state.items.find(i => i.barcode === barcode)) || state.items.find(i => i.name.toLowerCase() === name.toLowerCase());
+  if (item) {
+    if (amount > 0) item.batches.push(batch);
+    if (barcode && !item.barcode) item.barcode = barcode;
+    if (min && !item.min) item.min = min;
+  } else {
+    item = { id: uid(), name, category: $('fCat').value, location: $('fLoc').value.trim(), unit: $('fUnit').value.trim() || 'Stück', min, barcode, batches: amount > 0 ? [batch] : [] };
     state.items.push(item);
   }
+  if (amount > 0) logAdd('hinzugefügt', item, amount);
   openIds.add(item.id);
-  save(); $('dlg').close(); render();
+  save(); $('dlg').close(); switchTab('lager'); render();
 });
 
-// Export / Import
-$('exportBtn').addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+/* ---------- Barcode scannen ---------- */
+let scanStream = null, scanTimer = null;
+function stopScan(){
+  clearInterval(scanTimer); scanTimer = null;
+  if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
+  $('video').srcObject = null;
+}
+function closeScan(){ stopScan(); if ($('scanDlg').open) $('scanDlg').close(); }
+async function openScan(){
+  $('scanCode').value = ''; $('scanMsg').textContent = ''; $('video').hidden = true;
+  $('scanDlg').showModal();
+  if (!('BarcodeDetector' in window) || !navigator.mediaDevices) {
+    $('scanMsg').textContent = 'Dieser Browser kann Strichcodes nicht selbst lesen (zum Beispiel auf dem iPhone). Tippe die Nummer unter dem Strichcode ein.';
+    return;
+  }
+  try {
+    const det = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'] });
+    scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+    const v = $('video'); v.srcObject = scanStream; v.hidden = false; await v.play();
+    $('scanMsg').textContent = 'Halte den Strichcode ruhig vor die Kamera.';
+    scanTimer = setInterval(async () => {
+      try {
+        const r = await det.detect(v);
+        if (r.length && scanStream) handleCode(r[0].rawValue);
+      } catch (err) {}
+    }, 400);
+  } catch (err) {
+    $('video').hidden = true;
+    $('scanMsg').textContent = 'Die Kamera ist nicht verfügbar. Erlaube den Zugriff oder tippe die Nummer ein.';
+  }
+}
+async function handleCode(raw){
+  const code = String(raw).trim(); if (!code) return;
+  closeScan();
+  const item = state.items.find(i => i.barcode === code);
+  if (item) {
+    openIds.add(item.id); switchTab('lager'); render();
+    const el = document.querySelector(`details[data-id="${item.id}"]`);
+    if (el) el.scrollIntoView({ block: 'center' });
+    toast('Gefunden: ' + item.name);
+    return;
+  }
+  openAddDialog(code);
+  const name = await lookupBarcode(code);
+  if (name && !$('fName').value.trim()) $('fName').value = name;
+}
+$('scanBtn').addEventListener('click', openScan);
+$('scanClose').addEventListener('click', closeScan);
+$('scanDlg').addEventListener('close', stopScan);
+$('scanForm').addEventListener('submit', e => { e.preventDefault(); handleCode($('scanCode').value); });
+
+/* ---------- Export, Import, Kalender, Druck ---------- */
+function download(name, type, content){
+  const blob = new Blob([content], { type });
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'vorratslager-' + new Date().toISOString().slice(0,10) + '.json';
-  a.click(); URL.revokeObjectURL(a.href);
-});
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+$('exportBtn').addEventListener('click', () => download('vorratslager-' + toISO(today()) + '.json', 'application/json', JSON.stringify(state, null, 2)));
 $('importBtn').addEventListener('click', () => $('importFile').click());
 $('importFile').addEventListener('change', async e => {
   const file = e.target.files[0]; if (!file) return;
   try {
     const s = JSON.parse(await file.text());
     if (!s || !Array.isArray(s.items)) throw new Error();
-    if (!confirm('Die aktuellen Daten werden durch die Datei ersetzt. Fortfahren?')) return;
-    state = { warnDays: s.warnDays || 14, items: s.items };
+    if (!confirm('Die aktuellen Daten werden durch die Datei ersetzt. Fortfahren?')) { e.target.value = ''; return; }
+    state = normalize(s);
     $('warnDays').value = String(state.warnDays);
     save(); render();
   } catch (err) { alert('Die Datei konnte nicht gelesen werden. Wähle eine Export-Datei aus dem Vorratslager.'); }
   e.target.value = '';
 });
 
+const icsEsc = s => String(s).replace(/[\\;,]/g, m => '\\' + m).replace(/\n/g, '\\n');
+$('icsBtn').addEventListener('click', () => {
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Vorratslager//DE', 'CALSCALE:GREGORIAN'];
+  let n = 0;
+  for (const i of state.items) for (const b of i.batches) {
+    if (!(b.amount > 0) || !b.expiry || stat(b.expiry).days < 0) continue;
+    n++;
+    const d = parseDate(b.expiry), next = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
+    const title = `Läuft ab: ${i.name} (${fmtNum(b.amount)} ${i.unit})`;
+    L.push('BEGIN:VEVENT', `UID:${b.id}@vorratslager`, `DTSTAMP:${stamp}`,
+      `DTSTART;VALUE=DATE:${b.expiry.replace(/-/g, '')}`, `DTEND;VALUE=DATE:${toISO(next).replace(/-/g, '')}`,
+      `SUMMARY:${icsEsc(title)}`,
+      'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${icsEsc(title)}`, 'TRIGGER:-PT15H', 'END:VALARM',
+      'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${icsEsc(title)}`, 'TRIGGER:-P6DT15H', 'END:VALARM',
+      'END:VEVENT');
+  }
+  if (!n) { toast('Es gibt keine Chargen mit einem Ablaufdatum in der Zukunft.'); return; }
+  L.push('END:VCALENDAR');
+  download('vorratslager-ablauf.ics', 'text/calendar', L.join('\r\n'));
+  toast('Öffne die Datei, um die Erinnerungen in deinen Kalender zu übernehmen.');
+});
+
+function buildPrint(){
+  const items = [...state.items].sort((a, b) => (a.location || '').localeCompare(b.location || '', 'de') || a.name.localeCompare(b.name, 'de'));
+  const rows = items.map(i => {
+    const bs = i.batches.filter(b => b.amount > 0).sort(byExpiry);
+    return `<tr><td>${esc(i.name)}</td><td>${esc(i.location || '')}</td><td>${fmtNum(total(i))} ${esc(i.unit)}</td><td>${bs.map(b => `${fmtNum(b.amount)} bis ${b.expiry ? fmtDate(b.expiry) : 'ohne Datum'}`).join('<br>')}</td></tr>`;
+  }).join('');
+  $('printArea').innerHTML = `<h1>Vorratslager</h1><p>Stand: ${new Date().toLocaleDateString('de-AT')}</p><table><thead><tr><th>Artikel</th><th>Lagerort</th><th>Menge</th><th>Chargen</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+window.addEventListener('beforeprint', buildPrint);
+$('printBtn').addEventListener('click', () => { buildPrint(); window.print(); });
+
+/* ---------- Start ---------- */
 render();
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
 </script>
 </body>
 </html>
