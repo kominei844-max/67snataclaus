@@ -723,7 +723,7 @@ $('#title').onclick=()=>{
   else{window.onYouTubeIframeAPIReady=mk;const sc=document.createElement('script');sc.src='https://www.youtube.com/iframe_api';sc.onerror=()=>{ytLoading=false;ytClose()};document.head.appendChild(sc)}};
 /*SYNC*/
 /* Synchronisation über Firebase Realtime Database (aus, solange SYNC_URL leer ist) */
-const SYNC_URL='';  // z. B. 'https://dein-projekt-default-rtdb.europe-west1.firebasedatabase.app'
+const SYNC_URL='https://vorrat-6e18c-default-rtdb.europe-west1.firebasedatabase.app';  // z. B. 'https://dein-projekt-default-rtdb.europe-west1.firebasedatabase.app'
 const SYNC_ROOT=SYNC_URL?SYNC_URL.replace(/\/+$/,'')+'/vorrat':'';
 let SNAP=load('v_snap',{items:{},shop:{}}),TOMB=load('v_tomb',{items:{},shop:{}}),DIRTY=load('v_dirty',{}),CGU=load('v_cgu',0);
 let pushing=false,pushT=null,pendingR=false;
