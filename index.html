@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vorratslager</title>
+<style>
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --ink:#1b2735; --muted:#5b6978; --line:#d5dbe2;
+  --accent:#1f5f8b; --accent-ink:#ffffff;
+  --ok:#1f7a4d; --ok-bg:#dff1e6;
+  --warn:#8a5a00; --warn-bg:#fbeccb;
+  --bad:#a3262a; --bad-bg:#f9dcdc;
+  --none:#4a5766; --none-bg:#e6eaee;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#12181f; --surface:#1b232c; --ink:#e6ebf0; --muted:#9aa8b6; --line:#2c3743;
+    --accent:#6db3e3; --accent-ink:#0d1a24;
+    --ok:#6fd3a0; --ok-bg:#1d3a2b;
+    --warn:#f0c36a; --warn-bg:#3d3216;
+    --bad:#ff9a9a; --bad-bg:#432224;
+    --none:#b3bfcb; --none-bg:#26303a;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Avenir Next","Segoe UI",system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:1.8rem;margin:8px 0 4px;letter-spacing:-.01em}
+.lead{margin:0 0 18px;color:var(--muted)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.counters{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.counter{border:2px solid transparent;border-radius:10px;padding:10px 12px;text-align:left;background:var(--surface);display:flex;flex-direction:column;gap:2px}
+.counter b{font-size:1.6rem;line-height:1.1}
+.counter span{font-size:.85rem;color:var(--muted)}
+.counter.bad b{color:var(--bad)} .counter.warn b{color:var(--warn)} .counter.ok b{color:var(--ok)}
+.counter[aria-pressed="true"]{border-color:var(--accent)}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.toolbar input[type=search]{flex:1 1 200px}
+.toolbar input,.toolbar select{padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.btn{padding:9px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.btn.danger{color:var(--bad)}
+.btn.small{padding:6px 10px;font-size:.9rem}
+
+.list{display:flex;flex-direction:column;gap:8px}
+details.item{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+details.item[open]{border-color:var(--accent)}
+summary{list-style:none;cursor:pointer;padding:12px 14px;display:grid;grid-template-columns:1fr auto auto;gap:4px 12px;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .15s}
+details[open] summary::after{transform:rotate(-135deg)}
+.name{font-weight:650}
+.sub{font-size:.85rem;color:var(--muted)}
+.total{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.82rem;font-weight:600;white-space:nowrap}
+.badge.bad{background:var(--bad-bg);color:var(--bad)}
+.badge.warn{background:var(--warn-bg);color:var(--warn)}
+.badge.ok{background:var(--ok-bg);color:var(--ok)}
+.badge.none{background:var(--none-bg);color:var(--none)}
+
+.detail{border-top:1px solid var(--line);padding:10px 14px 14px}
+.batch{display:grid;grid-template-columns:90px 1fr auto auto;gap:8px;align-items:center;padding:6px 0}
+.batch input{padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);width:100%;min-width:0}
+.addbatch{display:grid;grid-template-columns:90px 1fr auto;gap:8px;align-items:end;margin-top:10px;padding-top:12px;border-top:1px dashed var(--line)}
+.addbatch label{display:flex;flex-direction:column;font-size:.8rem;color:var(--muted);gap:2px}
+.addbatch input{padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);min-width:0}
+.itemfoot{margin-top:12px;display:flex;justify-content:flex-end}
+
+.empty{padding:28px 16px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:10px}
+
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);padding:20px;width:min(440px,calc(100vw - 24px))}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog h2{margin:0 0 12px;font-size:1.2rem}
+.field{display:flex;flex-direction:column;gap:3px;margin-bottom:10px;font-size:.88rem;color:var(--muted)}
+.field input,.field select{padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font-size:1rem}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
+
+footer{margin-top:28px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;color:var(--muted);font-size:.85rem}
+footer p{flex:1 1 280px;margin:0}
+
+@media (max-width:520px){
+  .counters{gap:6px}
+  summary{grid-template-columns:1fr auto}
+  summary .total{grid-column:1;text-align:left}
+  summary .badge{grid-column:1}
+  summary::after{grid-row:1;grid-column:2}
+  .batch{grid-template-columns:80px 1fr auto}
+  .batch .rel{grid-column:1 / -1;order:5}
+}
+@media (prefers-reduced-motion:reduce){summary::after{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Vorratslager</h1>
+  <p class="lead">Alle Lebensmittel und Gegenstände im Haus. Auf einen Eintrag tippen, um die Chargen mit ihren Ablaufdaten zu sehen.</p>
+
+  <div class="counters" id="counters"></div>
+
+  <div class="toolbar">
+    <input type="search" id="search" placeholder="Suchen (Name oder Ort)" aria-label="Suchen">
+    <select id="catFilter" aria-label="Kategorie"></select>
+    <select id="sort" aria-label="Sortierung">
+      <option value="expiry">Nächstes Ablaufdatum zuerst</option>
+      <option value="name">Name A bis Z</option>
+    </select>
+    <button class="btn primary" id="addItemBtn" type="button">Artikel hinzufügen</button>
+  </div>
+
+  <div class="list" id="list"></div>
+
+  <footer>
+    <p>Die Daten bleiben nur in diesem Browser gespeichert. Mit Export und Import kannst du sie sichern oder auf ein anderes Gerät mitnehmen.</p>
+    <label>Warnung ab
+      <select id="warnDays" aria-label="Warnung ab Tagen vor Ablauf">
+        <option value="7">7 Tagen</option><option value="14">14 Tagen</option>
+        <option value="30">30 Tagen</option><option value="60">60 Tagen</option>
+      </select>
+    </label>
+    <button class="btn small" id="exportBtn" type="button">Exportieren</button>
+    <button class="btn small" id="importBtn" type="button">Importieren</button>
+    <input type="file" id="importFile" accept="application/json" hidden>
+  </footer>
+</main>
+
+<dialog id="dlg">
+  <form id="itemForm">
+    <h2>Artikel hinzufügen</h2>
+    <label class="field">Name
+      <input id="fName" required maxlength="80" placeholder="z. B. Eistee">
+    </label>
+    <div class="row2">
+      <label class="field">Kategorie
+        <select id="fCat"></select>
+      </label>
+      <label class="field">Lagerort
+        <input id="fLoc" list="locList" maxlength="60" placeholder="z. B. Keller, Regal 2">
+        <datalist id="locList"></datalist>
+      </label>
+    </div>
+    <div class="row2">
+      <label class="field">Menge
+        <input id="fAmount" type="number" min="0" step="any" value="1" required>
+      </label>
+      <label class="field">Einheit
+        <input id="fUnit" list="unitList" value="Stück" maxlength="20" required>
+        <datalist id="unitList"><option value="Stück"><option value="Liter"><option value="kg"><option value="g"><option value="Packungen"><option value="Dosen"><option value="Flaschen"></datalist>
+      </label>
+    </div>
+    <label class="field">Ablaufdatum (leer lassen, wenn nichts abläuft)
+      <input id="fDate" type="date">
+    </label>
+    <div class="actions">
+      <button class="btn" type="button" id="cancelBtn">Abbrechen</button>
+      <button class="btn primary" type="submit">Speichern</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+const KEY = 'vorratslager-v1';
+const CATS = ['Lebensmittel','Getränke','Haushalt','Hygiene','Werkzeug','Sonstiges'];
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+
+let state = load();
+let openIds = new Set();
+let statusFilter = '';
+
+function seed(){
+  return { warnDays: 14, items: [
+    { id: uid(), name: 'Eistee', category: 'Getränke', location: 'Keller', unit: 'Liter', batches: [
+      { id: uid(), amount: 10, expiry: '2027-09-10' },
+      { id: uid(), amount: 10, expiry: '2027-08-07' } ] },
+    { id: uid(), name: 'Nudeln', category: 'Lebensmittel', location: 'Vorratsschrank', unit: 'Packungen', batches: [
+      { id: uid(), amount: 6, expiry: '2028-03-15' } ] },
+    { id: uid(), name: 'Glühbirnen E27', category: 'Haushalt', location: 'Abstellraum', unit: 'Stück', batches: [
+      { id: uid(), amount: 4, expiry: null } ] }
+  ]};
+}
+function load(){
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY));
+    if (s && Array.isArray(s.items)) return { warnDays: s.warnDays || 14, items: s.items };
+  } catch (e) {}
+  return seed();
+}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+function today(){ const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+function parseDate(s){ const [y,m,d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+function fmtDate(s){ return parseDate(s).toLocaleDateString('de-AT', { day:'2-digit', month:'2-digit', year:'numeric' }); }
+function fmtNum(n){ return Number(n).toLocaleString('de-DE', { maximumFractionDigits: 2 }); }
+
+function stat(expiry){
+  if (!expiry) return { key:'none', days:Infinity };
+  const days = Math.round((parseDate(expiry) - today()) / 864e5);
+  if (days < 0) return { key:'bad', days };
+  if (days <= state.warnDays) return { key:'warn', days };
+  return { key:'ok', days };
+}
+function rel(days){
+  if (days === Infinity) return 'läuft nicht ab';
+  if (days < 0) return days === -1 ? 'seit 1 Tag abgelaufen' : `seit ${-days} Tagen abgelaufen`;
+  if (days === 0) return 'läuft heute ab';
+  if (days === 1) return 'läuft morgen ab';
+  return `läuft in ${days} Tagen ab`;
+}
+const order = { bad:0, warn:1, ok:2, none:3 };
+function itemStat(item){
+  let best = { key:'none', days:Infinity };
+  for (const b of item.batches) {
+    if (!(b.amount > 0)) continue;
+    const s = stat(b.expiry);
+    if (order[s.key] < order[best.key] || (s.key === best.key && s.days < best.days)) best = { ...s, expiry:b.expiry };
+  }
+  return best;
+}
+function total(item){ return item.batches.reduce((a,b) => a + (Number(b.amount) || 0), 0); }
+
+function render(){
+  // Zähler
+  let bad = 0, warn = 0, ok = 0;
+  for (const i of state.items) for (const b of i.batches) {
+    if (!(b.amount > 0)) continue;
+    const k = stat(b.expiry).key;
+    if (k === 'bad') bad++; else if (k === 'warn') warn++; else if (k === 'ok') ok++;
+  }
+  $('counters').innerHTML = [
+    ['bad', bad, 'abgelaufen'],
+    ['warn', warn, `laufen in ${state.warnDays} Tagen ab`],
+    ['ok', ok, 'noch lange haltbar']
+  ].map(([k,n,l]) => `<button type="button" class="counter ${k}" data-status="${k}" aria-pressed="${statusFilter === k}"><b>${n}</b><span>${l}</span></button>`).join('');
+
+  // Kategorien-Filter (Auswahl erhalten)
+  const cur = $('catFilter').value;
+  const cats = [...new Set([...CATS, ...state.items.map(i => i.category)])];
+  $('catFilter').innerHTML = '<option value="">Alle Kategorien</option>' + cats.map(c => `<option>${esc(c)}</option>`).join('');
+  $('catFilter').value = cats.includes(cur) ? cur : '';
+
+  // Orte für Autovervollständigung
+  $('locList').innerHTML = [...new Set(state.items.map(i => i.location).filter(Boolean))].map(l => `<option value="${esc(l)}">`).join('');
+
+  const q = $('search').value.trim().toLowerCase();
+  const cat = $('catFilter').value;
+  let items = state.items.filter(i =>
+    (!cat || i.category === cat) &&
+    (!q || (i.name + ' ' + (i.location || '')).toLowerCase().includes(q)) &&
+    (!statusFilter || i.batches.some(b => b.amount > 0 && stat(b.expiry).key === statusFilter)));
+
+  if ($('sort').value === 'name') items.sort((a,b) => a.name.localeCompare(b.name, 'de'));
+  else items.sort((a,b) => itemStat(a).days - itemStat(b).days || a.name.localeCompare(b.name, 'de'));
+
+  if (!items.length) {
+    $('list').innerHTML = `<div class="empty">${state.items.length ? 'Nichts gefunden. Ändere die Suche oder den Filter.' : 'Noch nichts im Lager. Füge deinen ersten Artikel hinzu.'}</div>`;
+    return;
+  }
+  $('list').innerHTML = items.map(itemHtml).join('');
+}
+
+function itemHtml(item){
+  const s = itemStat(item);
+  const badge = s.key === 'none'
+    ? '<span class="badge none">kein Ablaufdatum</span>'
+    : `<span class="badge ${s.key}">${s.key === 'bad' ? 'Abgelaufen ' : 'bis '}${fmtDate(s.expiry)}</span>`;
+  const batches = [...item.batches].sort((a,b) => (a.expiry ? parseDate(a.expiry).getTime() : Infinity) - (b.expiry ? parseDate(b.expiry).getTime() : Infinity));
+  const rows = batches.map(b => {
+    const st = stat(b.expiry);
+    return `<div class="batch" data-item="${item.id}" data-batch="${b.id}">
+      <input type="number" min="0" step="any" value="${b.amount}" data-field="amount" aria-label="Menge in ${esc(item.unit)}">
+      <input type="date" value="${b.expiry || ''}" data-field="expiry" aria-label="Ablaufdatum">
+      <span class="badge ${st.key} rel">${rel(st.days)}</span>
+      <button class="btn small danger" type="button" data-action="delbatch">Löschen</button>
+    </div>`;
+  }).join('');
+  return `<details class="item" data-id="${item.id}" ${openIds.has(item.id) ? 'open' : ''}>
+    <summary>
+      <div><div class="name">${esc(item.name)}</div><div class="sub">${esc(item.category)}${item.location ? ', ' + esc(item.location) : ''}</div></div>
+      <div class="total"><b>${fmtNum(total(item))}</b> ${esc(item.unit)}</div>
+      ${badge}
+    </summary>
+    <div class="detail">
+      ${rows || '<div class="sub">Keine Chargen vorhanden.</div>'}
+      <div class="addbatch" data-item="${item.id}">
+        <label>Menge<input type="number" min="0" step="any" value="1" data-new="amount"></label>
+        <label>Ablaufdatum<input type="date" data-new="expiry"></label>
+        <button class="btn small primary" type="button" data-action="addbatch">Charge hinzufügen</button>
+      </div>
+      <div class="itemfoot"><button class="btn small danger" type="button" data-action="delitem" data-item="${item.id}">Artikel löschen</button></div>
+    </div>
+  </details>`;
+}
+
+const findItem = id => state.items.find(i => i.id === id);
+
+// Klicks
+$('list').addEventListener('click', e => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const act = btn.dataset.action;
+  if (act === 'delbatch') {
+    const row = btn.closest('.batch'); const item = findItem(row.dataset.item);
+    item.batches = item.batches.filter(b => b.id !== row.dataset.batch);
+  } else if (act === 'addbatch') {
+    const box = btn.closest('.addbatch'); const item = findItem(box.dataset.item);
+    const amount = parseFloat(box.querySelector('[data-new=amount]').value);
+    const expiry = box.querySelector('[data-new=expiry]').value || null;
+    if (!(amount > 0)) { box.querySelector('[data-new=amount]').focus(); return; }
+    item.batches.push({ id: uid(), amount, expiry });
+  } else if (act === 'delitem') {
+    const item = findItem(btn.dataset.item);
+    if (!confirm(`„${item.name}“ komplett löschen?`)) return;
+    state.items = state.items.filter(i => i.id !== item.id);
+  }
+  save(); render();
+});
+// Felder ändern
+$('list').addEventListener('change', e => {
+  const f = e.target.dataset.field;
+  if (!f) return;
+  const row = e.target.closest('.batch');
+  const batch = findItem(row.dataset.item).batches.find(b => b.id === row.dataset.batch);
+  if (f === 'amount') batch.amount = Math.max(0, parseFloat(e.target.value) || 0);
+  if (f === 'expiry') batch.expiry = e.target.value || null;
+  save(); render();
+});
+// Offen-Zustand merken
+$('list').addEventListener('toggle', e => {
+  const d = e.target; if (!d.matches('details.item')) return;
+  d.open ? openIds.add(d.dataset.id) : openIds.delete(d.dataset.id);
+}, true);
+
+// Zähler als Filter
+$('counters').addEventListener('click', e => {
+  const b = e.target.closest('[data-status]'); if (!b) return;
+  statusFilter = statusFilter === b.dataset.status ? '' : b.dataset.status;
+  render();
+});
+['search','catFilter','sort'].forEach(id => $(id).addEventListener('input', render));
+
+// Warnschwelle
+$('warnDays').value = String(state.warnDays);
+$('warnDays').addEventListener('change', e => { state.warnDays = Number(e.target.value); save(); render(); });
+
+// Dialog
+$('fCat').innerHTML = CATS.map(c => `<option>${c}</option>`).join('');
+$('addItemBtn').addEventListener('click', () => { $('itemForm').reset(); $('dlg').showModal(); $('fName').focus(); });
+$('cancelBtn').addEventListener('click', () => $('dlg').close());
+$('itemForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const name = $('fName').value.trim();
+  const amount = parseFloat($('fAmount').value);
+  if (!name || !(amount >= 0)) return;
+  const batch = { id: uid(), amount, expiry: $('fDate').value || null };
+  let item = state.items.find(i => i.name.toLowerCase() === name.toLowerCase());
+  if (item) item.batches.push(batch);
+  else {
+    item = { id: uid(), name, category: $('fCat').value, location: $('fLoc').value.trim(), unit: $('fUnit').value.trim() || 'Stück', batches: [batch] };
+    state.items.push(item);
+  }
+  openIds.add(item.id);
+  save(); $('dlg').close(); render();
+});
+
+// Export / Import
+$('exportBtn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'vorratslager-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click(); URL.revokeObjectURL(a.href);
+});
+$('importBtn').addEventListener('click', () => $('importFile').click());
+$('importFile').addEventListener('change', async e => {
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const s = JSON.parse(await file.text());
+    if (!s || !Array.isArray(s.items)) throw new Error();
+    if (!confirm('Die aktuellen Daten werden durch die Datei ersetzt. Fortfahren?')) return;
+    state = { warnDays: s.warnDays || 14, items: s.items };
+    $('warnDays').value = String(state.warnDays);
+    save(); render();
+  } catch (err) { alert('Die Datei konnte nicht gelesen werden. Wähle eine Export-Datei aus dem Vorratslager.'); }
+  e.target.value = '';
+});
+
+render();
+</script>
+</body>
+</html>
