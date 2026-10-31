@@ -96,7 +96,69 @@ dialog label{display:block;font-size:13px;color:var(--mu);margin:10px 0 4px}
 .err{color:var(--bad);min-height:20px;font-size:14px}
 .top{display:flex;justify-content:space-between;align-items:flex-start}
 .top .btn{margin:18px 16px 0 0;padding:8px 14px;font-size:14px}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.tb{display:flex;gap:8px;margin:18px 16px 0 0;align-items:flex-start}
+.tb .btn{margin:0}
+#instTop{display:none;position:relative;overflow:hidden;animation:pulse 2.4s ease-in-out infinite}
+#instTop::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,#fff7 50%,transparent 70%);transform:translateX(-100%);animation:shine 3.2s infinite}
+#instTop .ar{display:inline-block;animation:bob 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #a78bfa77}60%{box-shadow:0 0 0 9px #a78bfa00}}
+@keyframes shine{0%,55%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+@keyframes bob{50%{transform:translateY(3px)}}
+#instHint{margin:0 12px;max-height:0;opacity:0;overflow:hidden;transition:max-height .45s ease,opacity .3s ease,margin .3s ease}
+#instHint.on{max-height:300px;opacity:1;margin:0 12px 12px}
+#instHint .in{background:var(--card);border:1px solid var(--ac);border-radius:16px;padding:14px 16px}
+#instHint ol{margin:10px 0 0;padding-left:22px;color:var(--mu);font-size:14px}
+#instHint li{margin:6px 0;opacity:0;transform:translateY(8px)}
+#instHint.on li{animation:rise .45s ease forwards}
+#instHint.on li:nth-child(2){animation-delay:.12s}#instHint.on li:nth-child(3){animation-delay:.24s}
+@keyframes rise{to{opacity:1;transform:none}}
+#toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translate(-50%,24px) scale(.9);opacity:0;pointer-events:none;background:var(--ok);color:#06281c;font-weight:700;padding:12px 18px;border-radius:99px;z-index:40;transition:transform .35s cubic-bezier(.2,1.4,.4,1),opacity .25s}
+#toast.on{transform:translate(-50%,0) scale(1);opacity:1}
+
+/* Animationen */
+html{background:var(--bg)}body{background:transparent}
+body::before{content:'';position:fixed;inset:-25%;z-index:-1;pointer-events:none;background:radial-gradient(38% 32% at 18% 12%,#a78bfa26,transparent 70%),radial-gradient(34% 30% at 86% 82%,#6ee7b71c,transparent 70%);animation:drift 20s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translate3d(-3%,-2%,0) scale(1)}to{transform:translate3d(4%,3%,0) scale(1.12)}}
+button{transition:transform .15s ease,background-color .2s ease,color .2s ease,opacity .2s}
+button:active{transform:scale(.93)}
+.chip{transition:background-color .2s,color .2s,border-color .2s,transform .15s}
+.row,.rc,.kpi div,.chk{transition:transform .2s ease,box-shadow .2s ease}
+.rc:hover,.row:hover{transform:translateY(-2px);box-shadow:0 8px 22px #0006}
+#main.enter>*{animation:rise2 .5s cubic-bezier(.2,.8,.2,1) both}
+#main.enter>:nth-child(2){animation-delay:.04s}#main.enter>:nth-child(3){animation-delay:.08s}#main.enter>:nth-child(4){animation-delay:.12s}#main.enter>:nth-child(5){animation-delay:.16s}#main.enter>:nth-child(6){animation-delay:.2s}#main.enter>:nth-child(7){animation-delay:.24s}#main.enter>:nth-child(8){animation-delay:.28s}#main.enter>:nth-child(9){animation-delay:.32s}#main.enter>:nth-child(10){animation-delay:.36s}#main.enter>:nth-child(n+11){animation-delay:.4s}
+@keyframes rise2{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+#main.enter .kpi div{animation:rise2 .5s cubic-bezier(.2,.8,.2,1) both}
+#main.enter .kpi div:nth-child(2){animation-delay:.1s}#main.enter .kpi div:nth-child(3){animation-delay:.2s}#main.enter .kpi div:nth-child(4){animation-delay:.3s}
+#main.enter .bp i{transform-origin:bottom;animation:growY .8s cubic-bezier(.2,.9,.3,1) both}
+@keyframes growY{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+#main.enter .bar i{transform-origin:left;animation:growX .9s cubic-bezier(.2,.9,.3,1) .15s both}
+@keyframes growX{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+#title.sw,#sub.sw{animation:swap .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes swap{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+.row.pop{animation:popRow .55s cubic-bezier(.2,1.4,.4,1)}
+@keyframes popRow{0%{transform:scale(.9);background:#3a3466}60%{transform:scale(1.03)}100%{transform:none}}
+.chk.pop{animation:popRow .5s cubic-bezier(.2,1.4,.4,1)}
+.chk.pop.done .dot{animation:dotPop .5s cubic-bezier(.2,1.8,.4,1)}
+@keyframes dotPop{0%{transform:scale(.4)}100%{transform:scale(1)}}
+.gone{animation:gone .23s ease-in forwards;pointer-events:none}
+@keyframes gone{to{opacity:0;transform:translateX(40px) scale(.9)}}
+dialog[open]{animation:dlgIn .35s cubic-bezier(.2,1.2,.4,1)}
+dialog[open]::backdrop{animation:fade .3s ease}
+@keyframes dlgIn{from{opacity:0;transform:translateY(30px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+#fab{animation:fabIn .55s cubic-bezier(.2,1.6,.4,1)}
+@keyframes fabIn{from{transform:scale(0) rotate(-90deg)}to{transform:none}}
+nav button.on span{animation:navB .45s cubic-bezier(.2,1.8,.4,1)}
+@keyframes navB{0%{transform:translateY(6px) scale(.8)}100%{transform:none}}
+.lock{transition:opacity .28s ease,transform .28s ease}.lock.out{opacity:0;transform:scale(1.04);pointer-events:none}
+.lock>*{animation:rise2 .6s cubic-bezier(.2,.8,.2,1) both}
+.lock>:nth-child(2){animation-delay:.08s}.lock>:nth-child(3){animation-delay:.16s}.lock>:nth-child(n+4){animation-delay:.24s}
+.lock .ic{animation:rise2 .6s both,floaty 3.2s ease-in-out .6s infinite}
+@keyframes floaty{50%{transform:translateY(-8px) rotate(-4deg)}}
+.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
+@media (prefers-reduced-motion:reduce){*,*::after,*::before{transition:none!important;animation:none!important}#instHint li{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -110,8 +172,9 @@ dialog label{display:block;font-size:13px;color:var(--mu);margin:10px 0 4px}
   <button class="btn" id="lockBtn">Entsperren</button>
 </div>
 
-<div class="top"><div><h1 id="title"></h1><p class="sub" id="sub"></p><p class="sub" id="syn" style="font-size:12px;margin-top:-8px"></p></div><button class="btn g" id="lockNow">Sperren</button></div>
-<div class="row" id="instBar" style="display:none;margin:0 12px 10px"><div class="info"><div class="nm">📲 App installieren</div><div class="mt" id="instTxt"></div></div><button class="btn" id="instBtn">Installieren</button><button class="ib" id="instNo" aria-label="Schließen">✕</button></div>
+<div class="top"><div><h1 id="title"></h1><p class="sub" id="sub"></p><p class="sub" id="syn" style="font-size:12px;margin-top:-8px"></p></div><div class="tb"><button class="btn" id="instTop"><span class="ar">📲</span> App laden</button><button class="btn g" id="lockNow">Sperren</button></div></div>
+<div id="instHint"><div class="in"><b id="instH"></b><ol id="instOl"></ol></div></div>
+<div id="toast"></div>
 <main id="main"></main>
 <button class="add" id="fab" aria-label="Artikel hinzufügen">+</button>
 <nav id="nav"></nav>
@@ -490,18 +553,18 @@ const fmtD=e=>e?new Date(e).toLocaleDateString('de-AT'):'';
 /* Sperre */
 const PW='6767';
 function lockInit(){
-  if(localStorage.getItem('v_ok')){$('#lock').style.display='none';unlocked=true;render();onUnlocked();if(typeof syncNow==='function')syncNow();return}
-  $('#lock').style.display='flex';$('#pw').value='';$('#pw2').style.display='none';
+  if(localStorage.getItem('v_ok')){$('#lock').style.display='none';unlocked=true;aN=true;render();onUnlocked();if(typeof syncNow==='function')syncNow();return}
+  $('#lock').classList.remove('out');$('#lock').style.display='flex';$('#pw').value='';$('#pw2').style.display='none';
   $('#lockHint').textContent='Gib das Passwort ein.';$('#lockBtn').textContent='Entsperren'}
 $('#lockBtn').onclick=()=>{$('#lockErr').textContent='';
-  if($('#pw').value!==PW){$('#lockErr').textContent='Falsches Passwort.';return}
-  localStorage.setItem('v_ok','1');lockInit()};
+  if($('#pw').value!==PW){$('#lockErr').textContent='Falsches Passwort.';const pw=$('#pw');pw.classList.remove('shake');void pw.offsetWidth;pw.classList.add('shake');return}
+  localStorage.setItem('v_ok','1');$('#lock').classList.add('out');setTimeout(()=>{$('#lock').classList.remove('out');lockInit()},280)};
 $('#pw').onkeydown=$('#pw2').onkeydown=e=>{if(e.key==='Enter')$('#lockBtn').click()};
 $('#lockNow').onclick=()=>{localStorage.removeItem('v_ok');unlocked=false;showInst();lockInit()};
 
 /* Navigation */
 $('#nav').innerHTML=TABS.map(t=>`<button data-t="${t[0]}"><span>${t[1]}</span>${t[2]}</button>`).join('');
-$('#nav').onclick=e=>{const b=e.target.closest('button');if(b){tab=b.dataset.t;flt='Alle';addG=false;render();scrollTo(0,0)}};
+$('#nav').onclick=e=>{const b=e.target.closest('button');if(b){aN=true;tab=b.dataset.t;flt='Alle';addG=false;render();scrollTo(0,0)}};
 
 function chips(){const fr=tab==='frost',cu=fr?CG.frost:CG.lager;
   return `<div class="chips">${['Alle','⏳ Bald ablaufend',...gl(fr)].map(g=>`<button class="chip ${flt===g?'on':''}" data-f="${esc(g)}">${esc(g)}</button>`).join('')}<button class="chip" data-a="grpAdd">+ Eigene</button></div>
@@ -512,12 +575,12 @@ function row(i,mode){const d=days(i.exp);let ex='';
   const meta=[`${i.qty} Stk.`,i.g?`${i.g} g`:'',i.pack?`${i.pack} pro Pkg.`:'',i.price?eur(i.price):'',ex,low,i.group].filter(Boolean).join(' · ');
   const img=i.img?`<div class="ph"><img src="${esc(i.img)}" alt="" loading="lazy"></div>`:`<div class="ph">${esc(i.name[0]||'?').toUpperCase()}</div>`;
   const x=d!==null&&d<0&&i.qty>0?`<button class="ib" data-a="exp" data-id="${i.id}" title="Als abgelaufen verbuchen">⚠️</button>`:'';
-  return `<div class="row">${img}<div class="info"><div class="nm">${esc(i.name)}</div><div class="mt">${meta}</div></div><div class="btns">${x}<button class="ib" data-a="use" data-id="${i.id}" title="Eins verbraucht">−</button><button class="ib" data-a="ed" data-id="${i.id}" title="Bearbeiten">✎</button><button class="ib" data-a="del" data-id="${i.id}" title="Aus der Liste entfernen">🗑</button></div></div>`}
+  return `<div class="row${i.id===popId?' pop':''}">${img}<div class="info"><div class="nm">${esc(i.name)}</div><div class="mt">${meta}</div></div><div class="btns">${x}<button class="ib" data-a="use" data-id="${i.id}" title="Eins verbraucht">−</button><button class="ib" data-a="ed" data-id="${i.id}" title="Bearbeiten">✎</button><button class="ib" data-a="del" data-id="${i.id}" title="Aus der Liste entfernen">🗑</button></div></div>`}
 function list(arr,empty){return arr.length?arr.map(row).join(''):`<div class="empty">${empty}</div>`}
 const filt=a=>a.filter(i=>flt==='Alle'||(flt==='⏳ Bald ablaufend'?(i.qty>0&&i.exp&&days(i.exp)<=7):(tab==='frost'?(gl(true).includes(i.group)?i.group:'Sonstiges'):i.group)===flt));
 const byExp=(a,b)=>(a.exp||'9')<(b.exp||'9')?-1:1;
 
-function render(){if(!unlocked)return;
+function renderCore(){if(!unlocked)return;
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
   if(addG&&$('#gNew'))setTimeout(()=>$('#gNew')&&$('#gNew').focus(),0);
   $('#fab').style.display=['lager','frost'].includes(tab)?'block':'none';
@@ -532,9 +595,16 @@ function render(){if(!unlocked)return;
   else if(tab==='stat')renderStat(m);
   else renderRec(m)}
 
+let aN=true,popId=null;
+function render(){if(!unlocked)return;renderCore();animTick()}
+function animTick(){const m=$('#main');if(!m)return;
+  if(aN){aN=false;m.classList.remove('enter');void m.offsetWidth;m.classList.add('enter');
+    ['#title','#sub'].forEach(q=>{const e=$(q);e.classList.remove('sw');void e.offsetWidth;e.classList.add('sw')})}
+  else m.classList.remove('enter');
+  popId=null}
 function renderShop(m){const o=S.shop.filter(s=>!s.done),d=S.shop.filter(s=>s.done);
   const miss=S.items.filter(i=>i.min>0&&i.qty<i.min&&!S.shop.some(s=>!s.done&&s.name.toLowerCase()===i.name.toLowerCase()));
-  const c=s=>`<div class="srow"><button class="chk ${s.done?'done':''}" data-a="tg" data-id="${s.id}"><span class="dot">✓</span><span class="t">${esc(s.name)}</span></button><button class="ib" style="height:auto;width:52px;border-radius:14px" data-a="sDel" data-id="${s.id}" aria-label="Entfernen">🗑</button></div>`;
+  const c=s=>`<div class="srow"><button class="chk ${s.done?'done':''}${s.id===popId?' pop':''}" data-a="tg" data-id="${s.id}"><span class="dot">✓</span><span class="t">${esc(s.name)}</span></button><button class="ib" style="height:auto;width:52px;border-radius:14px" data-a="sDel" data-id="${s.id}" aria-label="Entfernen">🗑</button></div>`;
   m.innerHTML=`<div class="inl"><input id="sNew" placeholder="Neu auf die Liste…" enterkeyhint="done"><button class="btn" id="sAdd">Hinzufügen</button></div>
   ${miss.length?`<div class="h2">Fehlt im Lager</div>${miss.map(i=>`<div class="row"><div class="info"><div class="nm">${esc(i.name)}</div><div class="mt">${i.qty} von mind. ${i.min}</div></div><button class="ib p" data-a="toShop" data-id="${i.id}">+</button></div>`).join('')}`:''}
   <div class="h2">Offen (${o.length})</div>${o.map(c).join('')||'<div class="empty">Alles erledigt.</div>'}
@@ -567,32 +637,32 @@ function renderRec(m){const act=S.items.filter(i=>i.qty>0);
 
 /* Aktionen */
 document.addEventListener('click',async e=>{
-  const rt=e.target.closest('[data-rt]');if(rt){recTag=rt.dataset.rt;render();return}
-  const rd=e.target.closest('[data-rd]');if(rd){recDiff=rd.dataset.rd;render();return}
-  const rf=e.target.closest('[data-rf]');if(rf){recFast=!recFast;render();return}
-  const rb=e.target.closest('[data-r]');if(rb){recMode=rb.dataset.r;render();return}
-  const f=e.target.closest('[data-f]');if(f){flt=f.dataset.f;render();return}
+  const rt=e.target.closest('[data-rt]');if(rt){aN=true;recTag=rt.dataset.rt;render();return}
+  const rd=e.target.closest('[data-rd]');if(rd){aN=true;recDiff=rd.dataset.rd;render();return}
+  const rf=e.target.closest('[data-rf]');if(rf){aN=true;recFast=!recFast;render();return}
+  const rb=e.target.closest('[data-r]');if(rb){aN=true;recMode=rb.dataset.r;render();return}
+  const f=e.target.closest('[data-f]');if(f){aN=true;flt=f.dataset.f;render();return}
   const b=e.target.closest('[data-a]');
   if(b){const a=b.dataset.a,it=S.items.find(i=>i.id===b.dataset.id);
-    if(a==='use'&&it&&it.qty>0){it.qty--;S.log.push({t:Date.now(),type:'used',n:1})}
+    if(a==='use'&&it&&it.qty>0){popId=it.id;it.qty--;S.log.push({t:Date.now(),type:'used',n:1})}
     if(a==='exp'&&it){S.log.push({t:Date.now(),type:'expired',n:it.qty,v:(it.price||0)*it.qty});it.qty=0}
     if(a==='ed'){openDlg(it);return}
-    if(a==='del'){if(!b.dataset.sure){b.dataset.sure='1';b.textContent='Sicher?';b.style.cssText='width:auto;padding:0 10px;background:#f87171;color:#1a1230;font-size:13px;font-weight:700';return}S.items=S.items.filter(i=>i.id!==b.dataset.id)}
+    if(a==='del'){if(!b.dataset.sure){b.dataset.sure='1';b.textContent='Sicher?';b.style.cssText='width:auto;padding:0 10px;background:#f87171;color:#1a1230;font-size:13px;font-weight:700';return}const re=b.closest('.row');if(re){re.classList.add('gone');await new Promise(r=>setTimeout(r,230))}S.items=S.items.filter(i=>i.id!==b.dataset.id)}
     if(a==='grpAdd')addG=!addG;
     if(a==='gDel'){const g=b.dataset.g,fr=tab==='frost',k=fr?'frost':'lager';CG[k]=CG[k].filter(x=>x!==g);saveCG();cgChanged();S.items.forEach(i=>{if(i.group===g&&!!i.frozen===fr)i.group='Sonstiges'});if(flt===g)flt='Alle'}
-    if(a==='sDel')S.shop=S.shop.filter(s=>s.id!==b.dataset.id);
-    if(a==='tg'){const s=S.shop.find(s=>s.id===b.dataset.id);if(s)s.done=!s.done}
+    if(a==='sDel'){const re=b.closest('.srow');if(re){re.classList.add('gone');await new Promise(r=>setTimeout(r,230))}S.shop=S.shop.filter(s=>s.id!==b.dataset.id)}
+    if(a==='tg'){const s=S.shop.find(s=>s.id===b.dataset.id);if(s){s.done=!s.done;popId=s.id}}
     if(a==='toShop'&&it)S.shop.push({id:uid(),name:it.name,done:false});
     if(a==='rShop')b.dataset.miss.split(',').forEach(k=>{if(!S.shop.some(s=>!s.done&&s.name.toLowerCase()===k))S.shop.push({id:uid(),name:k[0].toUpperCase()+k.slice(1),done:false})});
     save();render();return}
   const id=e.target.id;
   if(id==='gAdd'){const v=$('#gNew').value.trim(),fr=tab==='frost',k=fr?'frost':'lager';
     if(v&&!gl(fr).some(x=>x.toLowerCase()===v.toLowerCase())){CG[k].push(v);saveCG();cgChanged();flt=v}addG=false;render()}
-  if(id==='sAdd'){const v=$('#sNew').value.trim();if(!v){$('#sNew').focus();return}try{S.shop.push({id:uid(),name:v,done:false});save()}catch(err){showErr('Speichern: '+err.message)}render();const n=$('#sNew');if(n)n.focus()}
+  if(id==='sAdd'){const v=$('#sNew').value.trim();if(!v){$('#sNew').focus();return}try{const nid=uid();popId=nid;S.shop.push({id:nid,name:v,done:false});save()}catch(err){showErr('Speichern: '+err.message)}render();const n=$('#sNew');if(n)n.focus()}
   if(id==='sClr'){S.shop=S.shop.filter(s=>!s.done);save();render()}
   if(id==='sShare'){const t='Einkauf:\n'+S.shop.filter(s=>!s.done).map(s=>'• '+s.name).join('\n');try{navigator.share?await navigator.share({text:t}):(await navigator.clipboard.writeText(t),alert('Liste kopiert.'))}catch{}}
-  if(id==='mP'){mon=new Date(mon.getFullYear(),mon.getMonth()-1,1);render()}
-  if(id==='mN'){mon=new Date(mon.getFullYear(),mon.getMonth()+1,1);render()}
+  if(id==='mP'){aN=true;mon=new Date(mon.getFullYear(),mon.getMonth()-1,1);render()}
+  if(id==='mN'){aN=true;mon=new Date(mon.getFullYear(),mon.getMonth()+1,1);render()}
   if(id==='bEx'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({...S,cg:CG})],{type:'application/json'}));a.download='vorrat-sicherung.json';a.click()}
   if(id==='bIm')$('#bFile').click();
 });
@@ -632,7 +702,7 @@ $('#fLook').onclick=async()=>{const bc=$('#fBc').value.trim();if(!bc)return;$('#
 $('#f').onsubmit=e=>e.preventDefault();
 $('#fSave').onclick=()=>{
   const o={name:$('#fName').value.trim(),bc:$('#fBc').value.trim(),qty:+$('#fQty').value||0,min:+$('#fMin').value||0,exp:$('#fExp').value,price:+$('#fPrice').value||0,g:+$('#fGram').value||0,pack:+$('#fPack').value||0,group:$('#fGrp').value,frozen:$('#fFr').checked,img:curImg};
-  if(!o.name){$('#fName').focus();return}if(editId)Object.assign(S.items.find(i=>i.id===editId),o);else S.items.push({id:uid(),...o});
+  if(!o.name){$('#fName').focus();return}if(editId){Object.assign(S.items.find(i=>i.id===editId),o);popId=editId}else{const nid=uid();popId=nid;S.items.push({id:nid,...o})}
   if(!editId){tab=o.frozen?'frost':'lager';flt='Alle'}save();$('#dlg').close();render()};
 $('#fCancel').onclick=()=>$('#dlg').close();
 $('#fDel').onclick=()=>{const b=$('#fDel');
@@ -700,21 +770,27 @@ if(SYNC_ROOT){
 let instEv=null,unlockedOnce=false;
 const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-function showInst(){const bar=$('#instBar');if(!bar)return;
-  const hide=!unlocked||isStandalone()||load('v_instno',false)||(!instEv&&!isIOS());
-  bar.style.display=hide?'none':'flex';
-  if(hide)return;
-  $('#instBtn').style.display=instEv?'block':'none';
-  $('#instTxt').textContent=instEv?'Als App auf dem Gerät speichern.':'Tippe unten auf Teilen und dann auf „Zum Home-Bildschirm“.'}
+let toastT=null;
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('on'),2600)}
+function showInst(){const hide=!unlocked||isStandalone();
+  $('#instTop').style.display=hide?'none':'block';
+  if(hide)$('#instHint').classList.remove('on')}
+function fillHint(){const ios=isIOS();
+  $('#instH').textContent=ios?'So installierst du die App:':'So installierst du die App:';
+  $('#instOl').innerHTML=(ios
+    ?['Tippe unten in Safari auf „Teilen“ ⬆️','Wähle „Zum Home-Bildschirm“','Bestätige oben rechts mit „Hinzufügen“']
+    :['Öffne das Browser-Menü ⋮ (oben rechts)','Wähle „App installieren“ oder „Zum Startbildschirm hinzufügen“','Bestätige mit „Installieren“']).map(x=>'<li>'+x+'</li>').join('')}
 function onUnlocked(){
   if(!unlockedOnce){unlockedOnce=true;
     const l=document.createElement('link');l.rel='manifest';l.href='manifest.json';document.head.appendChild(l);
     if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{})}
   showInst()}
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();instEv=e;showInst()});
-addEventListener('appinstalled',()=>{instEv=null;showInst()});
-$('#instBtn').onclick=async()=>{if(!instEv)return;instEv.prompt();try{await instEv.userChoice}catch{}instEv=null;showInst()};
-$('#instNo').onclick=()=>{try{localStorage.setItem('v_instno','1')}catch{}showInst()};
+addEventListener('appinstalled',()=>{instEv=null;showInst();toast('✅ App installiert')});
+$('#instTop').onclick=async()=>{
+  if(instEv){instEv.prompt();try{const r=await instEv.userChoice;if(r&&r.outcome==='accepted')toast('✅ App wird installiert')}catch{}instEv=null;return}
+  const h=$('#instHint');if(h.classList.contains('on')){h.classList.remove('on');return}
+  fillHint();h.classList.remove('on');void h.offsetWidth;h.classList.add('on')};
 lockInit();
 </script>
 </body>
