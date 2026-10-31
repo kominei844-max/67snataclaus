@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#14121c">
-<link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -112,6 +111,7 @@ dialog label{display:block;font-size:13px;color:var(--mu);margin:10px 0 4px}
 </div>
 
 <div class="top"><div><h1 id="title"></h1><p class="sub" id="sub"></p><p class="sub" id="syn" style="font-size:12px;margin-top:-8px"></p></div><button class="btn g" id="lockNow">Sperren</button></div>
+<div class="row" id="instBar" style="display:none;margin:0 12px 10px"><div class="info"><div class="nm">📲 App installieren</div><div class="mt" id="instTxt"></div></div><button class="btn" id="instBtn">Installieren</button><button class="ib" id="instNo" aria-label="Schließen">✕</button></div>
 <main id="main"></main>
 <button class="add" id="fab" aria-label="Artikel hinzufügen">+</button>
 <nav id="nav"></nav>
@@ -490,14 +490,14 @@ const fmtD=e=>e?new Date(e).toLocaleDateString('de-AT'):'';
 /* Sperre */
 const PW='6767';
 function lockInit(){
-  if(localStorage.getItem('v_ok')){$('#lock').style.display='none';unlocked=true;render();if(typeof syncNow==='function')syncNow();return}
+  if(localStorage.getItem('v_ok')){$('#lock').style.display='none';unlocked=true;render();onUnlocked();if(typeof syncNow==='function')syncNow();return}
   $('#lock').style.display='flex';$('#pw').value='';$('#pw2').style.display='none';
   $('#lockHint').textContent='Gib das Passwort ein.';$('#lockBtn').textContent='Entsperren'}
 $('#lockBtn').onclick=()=>{$('#lockErr').textContent='';
   if($('#pw').value!==PW){$('#lockErr').textContent='Falsches Passwort.';return}
   localStorage.setItem('v_ok','1');lockInit()};
 $('#pw').onkeydown=$('#pw2').onkeydown=e=>{if(e.key==='Enter')$('#lockBtn').click()};
-$('#lockNow').onclick=()=>{localStorage.removeItem('v_ok');unlocked=false;lockInit()};
+$('#lockNow').onclick=()=>{localStorage.removeItem('v_ok');unlocked=false;showInst();lockInit()};
 
 /* Navigation */
 $('#nav').innerHTML=TABS.map(t=>`<button data-t="${t[0]}"><span>${t[1]}</span>${t[2]}</button>`).join('');
@@ -696,8 +696,26 @@ if(SYNC_ROOT){
   addEventListener('online',syncNow);addEventListener('focus',syncNow);
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncNow()})}
 /*ENDSYNC*/
+/* App-Installation: erst nach dem Passwort verfügbar (Manifest und Service Worker werden erst dann geladen) */
+let instEv=null,unlockedOnce=false;
+const isStandalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function showInst(){const bar=$('#instBar');if(!bar)return;
+  const hide=!unlocked||isStandalone()||load('v_instno',false)||(!instEv&&!isIOS());
+  bar.style.display=hide?'none':'flex';
+  if(hide)return;
+  $('#instBtn').style.display=instEv?'block':'none';
+  $('#instTxt').textContent=instEv?'Als App auf dem Gerät speichern.':'Tippe unten auf Teilen und dann auf „Zum Home-Bildschirm“.'}
+function onUnlocked(){
+  if(!unlockedOnce){unlockedOnce=true;
+    const l=document.createElement('link');l.rel='manifest';l.href='manifest.json';document.head.appendChild(l);
+    if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{})}
+  showInst()}
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();instEv=e;showInst()});
+addEventListener('appinstalled',()=>{instEv=null;showInst()});
+$('#instBtn').onclick=async()=>{if(!instEv)return;instEv.prompt();try{await instEv.userChoice}catch{}instEv=null;showInst()};
+$('#instNo').onclick=()=>{try{localStorage.setItem('v_instno','1')}catch{}showInst()};
 lockInit();
-if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
 </body>
 </html>
