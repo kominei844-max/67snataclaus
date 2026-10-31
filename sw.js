@@ -1,33 +1,14 @@
-const CACHE = 'vorratslager-v2';
-const FILES = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png'];
-
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE)
-      .then(c => Promise.all(FILES.map(f => c.add(f).catch(() => {}))))
-      .then(() => self.skipWaiting())
-  );
-});
-
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
-      .then(() => self.clients.claim())
-  );
-});
-
-// Erst das Netz fragen (damit Updates ankommen), ohne Netz aus dem Zwischenspeicher
-self.addEventListener('fetch', e => {
-  const r = e.request;
-  if (r.method !== 'GET' || new URL(r.url).origin !== location.origin) return;
-  e.respondWith(
-    fetch(r)
-      .then(res => {
-        const copy = res.clone();
-        caches.open(CACHE).then(c => c.put(r, copy));
-        return res;
-      })
-      .catch(() => caches.match(r).then(m => m || caches.match('index.html')))
-  );
+const V='vorrat-v1';
+const FILES=['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png'];
+self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting()))});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==V).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
+self.addEventListener('fetch',e=>{
+  const r=e.request;if(r.method!=='GET')return;
+  const u=new URL(r.url);
+  if(u.origin===location.origin){
+    // Erst Netz (damit Updates ankommen), sonst gespeicherte Version
+    e.respondWith(fetch(r).then(res=>{const c=res.clone();caches.open(V).then(x=>x.put(r,c));return res}).catch(()=>caches.match(r).then(m=>m||caches.match('./index.html'))));
+  }else if(u.hostname.includes('fonts.g')){
+    e.respondWith(caches.match(r).then(m=>m||fetch(r).then(res=>{const c=res.clone();caches.open(V).then(x=>x.put(r,c));return res})));
+  }
 });

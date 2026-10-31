@@ -2,927 +2,645 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#1f5f8b">
-<title>Vorratslager</title>
-<link rel="manifest" href="manifest.webmanifest">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14121c">
+<link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Vorrat">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Vorratslager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#eef1f4; --surface:#ffffff; --ink:#1b2735; --muted:#5b6978; --line:#d5dbe2;
-  --accent:#1f5f8b; --accent-ink:#ffffff;
-  --ok:#1f7a4d; --ok-bg:#dff1e6;
-  --warn:#8a5a00; --warn-bg:#fbeccb;
-  --bad:#a3262a; --bad-bg:#f9dcdc;
-  --none:#4a5766; --none-bg:#e6eaee;
-}
-@media (prefers-color-scheme: dark){
-  :root{
-    --bg:#12181f; --surface:#1b232c; --ink:#e6ebf0; --muted:#9aa8b6; --line:#2c3743;
-    --accent:#6db3e3; --accent-ink:#0d1a24;
-    --ok:#6fd3a0; --ok-bg:#1d3a2b;
-    --warn:#f0c36a; --warn-bg:#3d3216;
-    --bad:#ff9a9a; --bad-bg:#432224;
-    --none:#b3bfcb; --none-bg:#26303a;
-  }
-}
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Avenir Next","Segoe UI",system-ui,sans-serif}
-main{max-width:860px;margin:0 auto;padding:20px 16px 60px}
-h1{font-size:1.8rem;margin:8px 0 4px;letter-spacing:-.01em}
-h2{font-size:1.1rem;margin:18px 0 8px}
-.lead{margin:0 0 14px;color:var(--muted)}
-button,input,select,textarea{font:inherit;color:inherit}
-button{cursor:pointer}
-:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-[hidden]{display:none!important}
-
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:2px solid var(--line);margin-bottom:16px}
-.tabs button{background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 4px;font-weight:600;color:var(--muted)}
-.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
-
-.counters{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.counter{border:2px solid transparent;border-radius:10px;padding:10px 12px;text-align:left;background:var(--surface);display:flex;flex-direction:column;gap:2px}
-.counter b{font-size:1.6rem;line-height:1.1}
-.counter span{font-size:.85rem;color:var(--muted)}
-.counter.bad b{color:var(--bad)} .counter.warn b{color:var(--warn)} .counter.ok b{color:var(--ok)}
-.counter[aria-pressed="true"]{border-color:var(--accent)}
-
-.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
-.toolbar input[type=search]{flex:1 1 200px}
-.toolbar input,.toolbar select{padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
-.btn{padding:9px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface)}
-.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
-.btn.danger{color:var(--bad)}
-.btn.small{padding:6px 10px;font-size:.9rem}
-
-.list{display:flex;flex-direction:column;gap:8px}
-.grp{margin:14px 0 2px;font-size:1rem}
-details.item{background:var(--surface);border:1px solid var(--line);border-radius:10px}
-details.item[open]{border-color:var(--accent)}
-summary{list-style:none;cursor:pointer;padding:12px 14px;display:grid;grid-template-columns:1fr auto auto;gap:6px 12px;align-items:center}
-summary::-webkit-details-marker{display:none}
-summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .15s}
-details[open] summary::after{transform:rotate(-135deg)}
-.head{display:flex;gap:10px;align-items:center;min-width:0}
-.thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;flex:none;background:var(--none-bg)}
-.name{font-weight:650}
-.sub{font-size:.85rem;color:var(--muted)}
-.total{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
-.meta{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.qk{margin-left:auto;display:flex;gap:6px}
-
-.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:.82rem;font-weight:600;white-space:nowrap}
-.badge.bad{background:var(--bad-bg);color:var(--bad)}
-.badge.warn{background:var(--warn-bg);color:var(--warn)}
-.badge.ok{background:var(--ok-bg);color:var(--ok)}
-.badge.none{background:var(--none-bg);color:var(--none)}
-
-.detail{border-top:1px solid var(--line);padding:12px 14px 14px}
-.ifields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.ifields .wide{grid-column:1 / -1}
-.fld{display:flex;flex-direction:column;gap:2px;font-size:.8rem;color:var(--muted);min-width:0}
-.fld input,.fld select,.fld textarea{padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font-size:1rem;min-width:0;width:100%}
-.fld textarea{resize:vertical;min-height:56px}
-.photorow{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
-.photorow img{width:72px;height:72px;border-radius:10px;object-fit:cover}
-.batch{padding:8px 0;border-top:1px solid var(--line)}
-.brow{display:grid;grid-template-columns:100px 1fr;gap:8px}
-.brow input{padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);width:100%;min-width:0}
-.brow2{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
-.grow{flex:1}
-.addbatch{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin-top:10px;padding-top:12px;border-top:1px dashed var(--line)}
-.addbatch label{display:flex;flex-direction:column;font-size:.8rem;color:var(--muted);gap:2px;flex:1 1 110px;min-width:0}
-.addbatch label.chk{flex-direction:row;align-items:center;gap:6px;flex:1 1 100%;font-size:.9rem;color:var(--ink)}
-.addbatch input:not([type=checkbox]){padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);min-width:0}
-.addbatch .frz{display:none}
-.addbatch.isfrozen .frz{display:flex}
-.addbatch.isfrozen .nd{display:none}
-.itemfoot{margin-top:12px;display:flex;justify-content:flex-end}
-
-.row{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
-.row .acts{grid-column:1 / -1;display:flex;gap:6px;flex-wrap:wrap}
-.shoprow{display:flex;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
-.shoprow label{flex:1;display:flex;gap:10px;align-items:center;cursor:pointer}
-.shoprow input[type=checkbox]{width:20px;height:20px}
-.shoprow.done span{text-decoration:line-through;color:var(--muted)}
-.shopform{display:flex;gap:8px;margin:10px 0}
-.shopform input{flex:1;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
-.bar{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-.stat b{font-size:1.5rem;display:block}
-.logrow{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:7px 2px;border-bottom:1px solid var(--line)}
-
-.empty{padding:28px 16px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:10px}
-
-dialog{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);padding:20px;width:min(460px,calc(100vw - 24px))}
-dialog::backdrop{background:rgba(0,0,0,.45)}
-dialog h2{margin:0 0 12px;font-size:1.2rem}
-dialog video{width:100%;max-height:50vh;border-radius:8px;background:#000;margin-bottom:10px}
-.field{display:flex;flex-direction:column;gap:3px;margin-bottom:10px;font-size:.88rem;color:var(--muted)}
-.field input,.field select{padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font-size:1rem;min-width:0}
-.field.chk{flex-direction:row;align-items:center;gap:8px;color:var(--ink)}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.inline{display:flex;gap:8px;align-items:flex-end}
-.inline .field{flex:1}
-.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:6px}
-
-footer{margin-top:28px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;color:var(--muted);font-size:.85rem}
-footer p{flex:1 1 100%;margin:0}
-
-.toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;max-width:90vw}
-.toast.show{opacity:1;transform:translate(-50%,0)}
-
-#printArea{display:none}
-
-@media (max-width:520px){
-  .counters{gap:6px}
-  .stats{grid-template-columns:1fr}
-}
-@media (prefers-reduced-motion:reduce){summary::after,.toast{transition:none}}
-@media print{
-  body{background:#fff;color:#000}
-  main,.toast,dialog{display:none!important}
-  #printArea{display:block}
-  #printArea h1{font-size:18pt}
-  #printArea table{width:100%;border-collapse:collapse}
-  #printArea th,#printArea td{border:1px solid #888;padding:4px 6px;text-align:left;font-size:11pt;vertical-align:top}
-}
+:root{--bg:#14121c;--card:#1e1b2b;--line:#2d2940;--tx:#f1eefb;--mu:#9a94b3;--ac:#a78bfa;--bad:#f87171;--ok:#6ee7b7}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:'DM Sans',system-ui,sans-serif;font-size:16px}
+body{padding:env(safe-area-inset-top) 0 calc(76px + env(safe-area-inset-bottom))}
+h1{font-size:30px;margin:18px 16px 4px;font-weight:700;letter-spacing:-.5px}
+#title{cursor:pointer;-webkit-user-select:none;user-select:none}
+h1 em{font-family:'Instrument Serif',serif;font-weight:400;color:var(--ac);font-size:1.15em}
+.sub{margin:0 16px 12px;color:var(--mu);font-size:14px}
+main{max-width:720px;margin:0 auto;padding:0 12px}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:4px 4px 12px}
+.chip{flex:none;padding:8px 14px;border-radius:99px;background:var(--card);color:var(--mu);border:1px solid var(--line)}
+.chip.on{background:var(--ac);color:#1a1230;border-color:var(--ac);font-weight:700}
+.row{display:flex;align-items:center;gap:12px;padding:12px;background:var(--card);border-radius:16px;margin-bottom:8px}
+.ph{width:52px;height:52px;border-radius:12px;background:#2a2640;flex:none;object-fit:cover;display:grid;place-items:center;font-weight:700;color:var(--ac);font-size:20px;overflow:hidden}
+.ph img{width:100%;height:100%;object-fit:cover}
+.info{flex:1;min-width:0}
+.nm{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mt{font-size:13px;color:var(--mu);margin-top:2px}
+.mt .bad{color:var(--bad)}.mt .warn{color:#fbbf24}
+.btns{display:flex;gap:6px;flex:none}
+.ib{width:40px;height:40px;border-radius:12px;background:#2a2640;font-size:18px;display:grid;place-items:center}
+.ib.p{background:var(--ac);color:#1a1230;font-weight:700}
+.add{position:fixed;right:16px;bottom:calc(88px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;background:var(--ac);color:#1a1230;font-size:30px;box-shadow:0 6px 20px #0008;z-index:5}
+nav{position:fixed;left:0;right:0;bottom:0;background:#191625f2;backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;overflow-x:auto;padding:6px 6px calc(6px + env(safe-area-inset-bottom));scrollbar-width:none;z-index:6}
+nav button{flex:1 0 auto;min-width:64px;background:none;color:var(--mu);padding:6px 8px;border-radius:12px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button span{font-size:20px}
+nav button.on{color:var(--ac);background:#a78bfa1f}
+.srow{display:flex;gap:8px;margin-bottom:8px}.srow .chk{margin:0;flex:1;width:auto}
+.chk{display:flex;align-items:center;gap:14px;padding:14px;background:var(--card);border-radius:14px;margin-bottom:8px;width:100%;text-align:left}
+.dot{width:26px;height:26px;border-radius:50%;border:2px solid #4a4466;flex:none;display:grid;place-items:center;color:transparent;font-size:15px;transition:.15s}
+.chk.done .dot{background:var(--ac);border-color:var(--ac);color:#fff}
+.chk.done .t{text-decoration:line-through;color:var(--mu)}
+.h2{margin:16px 6px 8px;font-size:13px;color:var(--mu);font-weight:500}
+.inl{display:flex;gap:8px;margin-bottom:12px}
+input,select{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;width:100%}
+input[type=checkbox]{-webkit-appearance:none;appearance:none;width:26px;height:26px;padding:0;flex:none;border-radius:8px;border:2px solid #4a4466;background:transparent;display:grid;place-items:center;cursor:pointer}
+input[type=checkbox]:checked{background:var(--ac);border-color:var(--ac)}
+input[type=checkbox]:checked::after{content:'✓';color:#1a1230;font-size:16px;font-weight:700;line-height:1}
+input[type=file]{color:var(--mu);font-size:14px;padding:8px}
+input[type=file]::file-selector-button{background:#2a2640;color:var(--tx);border:0;border-radius:10px;padding:10px 14px;margin-right:10px;font:inherit;cursor:pointer}
+:root{color-scheme:dark}
+input[type=date]{-webkit-appearance:none;appearance:none;min-height:46px;display:block;text-align:left;color:var(--tx);background:var(--card)}
+input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.6) sepia(1) saturate(4) hue-rotate(215deg);cursor:pointer}
+input[type=date]::-webkit-date-and-time-value{text-align:left}
+input:focus,select:focus{outline:2px solid var(--ac);outline-offset:0}
+.btn{background:var(--ac);color:#1a1230;font-weight:700;padding:12px 18px;border-radius:12px;flex:none}
+.btn.g{background:#2a2640;color:var(--tx)}
+.empty{color:var(--mu);text-align:center;padding:28px 12px}
+.stat{display:flex;align-items:center;justify-content:space-between;margin:6px 4px 12px}
+.bars{display:flex;align-items:flex-end;gap:10px;height:170px;background:var(--card);border-radius:16px;padding:16px 14px 10px}
+.bg{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.bp{display:flex;align-items:flex-end;gap:3px;flex:1;width:100%}
+.bp i{flex:1;border-radius:5px 5px 0 0;min-height:2px;display:block}
+.bp i.u{background:var(--ac)}.bp i.x{background:var(--bad)}
+.bg small{color:var(--mu);font-size:11px}
+.leg{display:flex;gap:16px;margin:10px 4px;font-size:13px;color:var(--mu)}
+.leg b{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi div{background:var(--card);border-radius:14px;padding:14px}
+.kpi strong{display:block;font-size:26px}
+.kpi span{font-size:13px;color:var(--mu)}
+.rc{background:var(--card);border-radius:16px;padding:14px;margin-bottom:8px}
+.rc h3{margin:0 0 4px;font-size:17px}
+.pill{display:inline-block;padding:3px 9px;border-radius:99px;font-size:12px;background:#2a2640;color:var(--mu);margin:3px 4px 0 0}
+.pill.y{background:#6ee7b722;color:var(--ok)}.pill.n{background:#f8717122;color:var(--bad)}
+.bar{height:6px;border-radius:9px;background:#2a2640;margin:8px 0}.bar i{display:block;height:100%;border-radius:9px;background:var(--ac)}
+dialog{border:0;border-radius:20px;background:#1e1b2b;color:var(--tx);width:min(92vw,440px);padding:18px;max-height:90vh}
+dialog::backdrop{background:#000a}
+dialog label{display:block;font-size:13px;color:var(--mu);margin:10px 0 4px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lock{position:fixed;inset:0;background:var(--bg);z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center}
+.lock .ic{font-size:44px}
+.lock input{max-width:300px;text-align:center}
+.lock .btn{width:100%;max-width:300px}
+.err{color:var(--bad);min-height:20px;font-size:14px}
+.top{display:flex;justify-content:space-between;align-items:flex-start}
+.top .btn{margin:18px 16px 0 0;padding:8px 14px;font-size:14px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
-<main>
-  <h1>Vorratslager</h1>
-  <p class="lead">Alle Lebensmittel und Gegenstände im Haus mit ihren Ablaufdaten.</p>
+<div class="lock" id="lock">
+  <div class="ic">🔒</div>
+  <h1 style="margin:0">Dein <em>Vorrat</em></h1>
+  <p class="sub" id="lockHint" style="margin:0"></p>
+  <input id="pw" type="password" placeholder="Passwort" autocomplete="current-password">
+  <input id="pw2" type="password" placeholder="Passwort wiederholen" style="display:none" autocomplete="new-password">
+  <div class="err" id="lockErr"></div>
+  <button class="btn" id="lockBtn">Entsperren</button>
+</div>
 
-  <nav class="tabs" role="tablist" aria-label="Bereiche">
-    <button type="button" role="tab" data-tab="lager" aria-selected="true" id="tabLager">Lager</button>
-    <button type="button" role="tab" data-tab="soon" aria-selected="false" id="tabSoon">Aufbrauchen</button>
-    <button type="button" role="tab" data-tab="shop" aria-selected="false" id="tabShop">Einkauf</button>
-    <button type="button" role="tab" data-tab="log" aria-selected="false" id="tabLog">Verlauf</button>
-  </nav>
+<div class="top"><div><h1 id="title"></h1><p class="sub" id="sub"></p></div><button class="btn g" id="lockNow">Sperren</button></div>
+<main id="main"></main>
+<button class="add" id="fab" aria-label="Artikel hinzufügen">+</button>
+<nav id="nav"></nav>
+<div id="ytBox" style="position:fixed;left:-9999px;top:0;width:200px;height:200px;pointer-events:none"><div id="yt"></div></div>
 
-  <!-- Lager -->
-  <section id="panel-lager" role="tabpanel">
-    <div class="counters" id="counters"></div>
-    <div class="toolbar">
-      <input type="search" id="search" placeholder="Suchen (Name oder Ort)" aria-label="Suchen">
-      <select id="catFilter" aria-label="Kategorie"></select>
-      <select id="sort" aria-label="Sortierung">
-        <option value="expiry">Nächstes Ablaufdatum zuerst</option>
-        <option value="name">Name A bis Z</option>
-      </select>
-      <select id="viewSel" aria-label="Ansicht">
-        <option value="liste">Ansicht: Liste</option>
-        <option value="ort">Ansicht: Nach Lagerort</option>
-      </select>
-      <button class="btn" id="scanBtn" type="button">Barcode scannen</button>
-      <button class="btn primary" id="addItemBtn" type="button">Artikel hinzufügen</button>
-    </div>
-    <div class="list" id="list"></div>
-  </section>
-
-  <!-- Aufbrauchen -->
-  <section id="panel-soon" role="tabpanel" hidden>
-    <p class="lead">Chargen, die abgelaufen sind oder bald ablaufen. Zuerst verbrauchen, was oben steht.</p>
-    <div class="list" id="soonList"></div>
-  </section>
-
-  <!-- Einkauf -->
-  <section id="panel-shop" role="tabpanel" hidden>
-    <div id="shopSuggest"></div>
-    <h2>Einkaufsliste</h2>
-    <form class="shopform" id="shopForm">
-      <input id="shopText" maxlength="100" placeholder="Etwas ergänzen, z. B. Butter" aria-label="Neuer Eintrag">
-      <button class="btn primary" type="submit">Hinzufügen</button>
-    </form>
-    <div class="list" id="shopList"></div>
-    <div class="bar">
-      <button class="btn" type="button" id="shareBtn">Teilen oder kopieren</button>
-      <button class="btn" type="button" id="clearDoneBtn">Erledigte löschen</button>
-    </div>
-  </section>
-
-  <!-- Verlauf -->
-  <section id="panel-log" role="tabpanel" hidden>
-    <div class="stats" id="logStats"></div>
-    <div id="logList"></div>
-    <div class="bar"><button class="btn danger small" type="button" id="clearLogBtn">Verlauf leeren</button></div>
-  </section>
-
-  <footer>
-    <p>Die Daten bleiben nur in diesem Browser gespeichert. Mit Export und Import sicherst du sie oder nimmst sie auf ein anderes Gerät mit.</p>
-    <label>Warnung ab
-      <select id="warnDays" aria-label="Warnung ab Tagen vor Ablauf">
-        <option value="7">7 Tagen</option><option value="14">14 Tagen</option>
-        <option value="30">30 Tagen</option><option value="60">60 Tagen</option>
-      </select>
-    </label>
-    <button class="btn small" id="exportBtn" type="button">Exportieren</button>
-    <button class="btn small" id="importBtn" type="button">Importieren</button>
-    <button class="btn small" id="icsBtn" type="button">Erinnerungen für den Kalender</button>
-    <button class="btn small" id="printBtn" type="button">Drucken</button>
-    <input type="file" id="importFile" accept="application/json" hidden>
-  </footer>
-</main>
-
-<!-- Artikel hinzufügen -->
-<dialog id="dlg">
-  <form id="itemForm">
-    <h2>Artikel hinzufügen</h2>
-    <label class="field">Name
-      <input id="fName" required maxlength="80" placeholder="z. B. Eistee">
-    </label>
-    <div class="inline">
-      <label class="field">Barcode (optional)
-        <input id="fBarcode" inputmode="numeric" maxlength="20" placeholder="Nummer unter dem Strichcode">
-      </label>
-      <button class="btn" type="button" id="fLookup" style="margin-bottom:10px">Name suchen</button>
-    </div>
-    <div class="row2">
-      <label class="field">Kategorie
-        <select id="fCat"></select>
-      </label>
-      <label class="field">Lagerort
-        <input id="fLoc" list="locList" maxlength="60" placeholder="z. B. Keller, Regal 2">
-        <datalist id="locList"></datalist>
-      </label>
-    </div>
-    <div class="row2">
-      <label class="field">Menge
-        <input id="fAmount" type="number" min="0" step="any" value="1" required>
-      </label>
-      <label class="field">Einheit
-        <input id="fUnit" list="unitList" value="Stück" maxlength="20" required>
-        <datalist id="unitList"><option value="Stück"><option value="Liter"><option value="kg"><option value="g"><option value="Packungen"><option value="Dosen"><option value="Flaschen"></datalist>
-      </label>
-    </div>
-    <label class="field">Mindestbestand (optional, darunter wird nachgekauft)
-      <input id="fMin" type="number" min="0" step="any" placeholder="z. B. 4">
-    </label>
-    <label class="field chk"><input type="checkbox" id="fFrozen"> Eingefroren</label>
-    <label class="field" id="fDateWrap">Ablaufdatum (leer lassen, wenn nichts abläuft)
-      <input id="fDate" type="date">
-    </label>
-    <div class="row2" id="fFrozenWrap" hidden>
-      <label class="field">Eingefroren am
-        <input id="fFDate" type="date">
-      </label>
-      <label class="field">Haltbar (Monate)
-        <input id="fMonths" type="number" min="1" step="1" value="6">
-      </label>
-    </div>
-    <div class="actions">
-      <button class="btn" type="button" id="cancelBtn">Abbrechen</button>
-      <button class="btn primary" type="submit">Speichern</button>
-    </div>
-  </form>
-</dialog>
-
-<!-- Barcode scannen -->
-<dialog id="scanDlg">
-  <h2>Barcode scannen</h2>
-  <video id="video" playsinline muted hidden></video>
-  <p class="sub" id="scanMsg"></p>
-  <form id="scanForm">
-    <div class="inline">
-      <label class="field">Oder Nummer eintippen
-        <input id="scanCode" inputmode="numeric" maxlength="20" placeholder="z. B. 4001234567890">
-      </label>
-      <button class="btn primary" type="submit" style="margin-bottom:10px">Suchen</button>
-    </div>
-  </form>
-  <div class="actions"><button class="btn" type="button" id="scanClose">Schließen</button></div>
-</dialog>
-
-<div id="printArea"></div>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<dialog id="dlg"><form method="dialog" id="f" style="margin:0">
+  <h2 id="dT" style="margin:0 0 6px">Artikel</h2>
+  <label>Name</label><input id="fName" required>
+  <label>Barcode (optional, holt Name und Foto)</label>
+  <div class="inl" style="margin:0"><input id="fBc" inputmode="numeric" placeholder="z. B. 4008400402222"><button type="button" class="btn g" id="fLook">Suchen</button></div>
+  <div class="two">
+    <div><label>Menge</label><input id="fQty" type="number" min="0" value="1" inputmode="numeric"></div>
+    <div><label>Mindestbestand</label><input id="fMin" type="number" min="0" value="1" inputmode="numeric"></div>
+    <div><label>Haltbar bis</label><input id="fExp" type="date"></div>
+    <div><label>Preis in €</label><input id="fPrice" type="number" min="0" step="0.01" inputmode="decimal"></div>
+    <div><label>Gewicht in g (optional)</label><input id="fGram" type="number" min="0" inputmode="numeric"></div>
+    <div><label>Anzahl pro Packung (optional)</label><input id="fPack" type="number" min="0" inputmode="numeric"></div>
+  </div>
+  <label>Gruppe</label><select id="fGrp"></select>
+  <label style="display:flex;gap:10px;align-items:center;color:var(--tx)"><input id="fFr" type="checkbox"> Tiefkühl</label>
+  <label>Foto (optional)</label><input id="fImg" type="file" accept="image/*">
+  <div class="inl" style="margin:16px 0 0"><button type="button" class="btn g" id="fCancel">Abbrechen</button><button type="button" class="btn" id="fSave" style="flex:1">Speichern</button></div>
+  <button type="button" class="btn g" id="fDel" style="margin-top:8px;width:100%;color:var(--bad)">Artikel löschen</button>
+</form></dialog>
 
 <script>
-const KEY = 'vorratslager-v1';
-const CATS = ['Lebensmittel','Getränke','Haushalt','Hygiene','Werkzeug','Sonstiges'];
-const $ = id => document.getElementById(id);
-const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
-const pad = n => String(n).padStart(2, '0');
-const round = x => Math.round(x * 1000) / 1000;
+const GROUPS=['Lebensmittel','Getränke','Haushalt','Sonstiges'];
+const FG=['Fisch','Fleisch','Gemüse','Fertiggerichte','Eis & Süßes','Sonstiges'];
+const TABS=[['lager','📦','Lager'],['frost','❄️','Tiefkühl'],['auf','⏳','Aufbrauchen'],['kauf','🛒','Einkauf'],['stat','📊','Statistik'],['rez','🍳','Rezepte']];
+const SYN={erdäpfel:['erdäpfel','erdapfel','kartoffel'],paradeiser:['paradeiser','tomate'],karotte:['karotte','möhre','gelbe rübe'],topfen:['topfen','quark'],suppenwürfel:['suppenwürfel','brühe','bouillon'],semmel:['semmel','brötchen','weckerl'],käse:['käse','emmentaler','gouda'],schwein:['schwein','schnitzel','karree','schopf'],rind:['rind','beiried','tafelspitz','suppenfleisch'],hendl:['hendl','huhn','hühner','geflügel'],fisch:['fisch','lachs','forelle','seelachs','kabeljau'],speck:['speck'],faschiert:['faschiert','hack','gehackt'],brösel:['brösel','paniermehl'],schwammerl:['schwammerl','pilz','champignon'],kraut:['kraut','weißkraut','rotkraut'],karfiol:['karfiol','blumenkohl'],rahm:['rahm','obers','sahne'],würstel:['würstel','wurst','frankfurter','bratwurst'],zucchini:['zucchini'],kürbis:['kürbis','hokkaido'],knoblauch:['knoblauch']};
+const DIFF={"Gebackene Apfelradln":'Mittel',"Panna cotta":'Mittel',"Tiramisu":'Mittel',"Reisauflauf":'Mittel',"Scheiterhaufen":'Mittel',"Schokokuchen":'Mittel',"Karottenkuchen":'Mittel',"Zitronenkuchen":'Mittel',"Käsekuchen":'Mittel',"Lebkuchen":'Mittel',"Vanillekipferl":'Mittel',"Nusskuchen":'Mittel',"Mohnkuchen":'Mittel',"Apfelkuchen":'Mittel',"Topfenkuchen":'Mittel',"Marmorkuchen":'Mittel',"Gugelhupf":'Mittel',"Salzburger Nockerl":'Schwer',"Powidltascherl":'Mittel',"Buchteln":'Mittel',"Mohnnudeln":'Mittel',"Germknödel":'Schwer',"Zwetschgenknödel":'Schwer',"Marillenknödel":'Schwer',"Mohnstrudel":'Schwer',"Milchrahmstrudel":'Schwer',"Topfenstrudel":'Schwer',"Apfelstrudel":'Schwer',"Fischsuppe":'Mittel',"Backerbsensuppe":'Mittel',"Spargelcremesuppe":'Mittel',"Gulaschsuppe":'Mittel',"Knödelsuppe":'Mittel',"Rindsuppe mit Einlage":'Mittel',"Leberknödelsuppe":'Mittel',"Burger":'Mittel',"Chili con Carne":'Mittel',"Gemüselasagne":'Mittel',"Gefüllte Zucchini":'Mittel',"Kohlrouladen":'Schwer',"Kürbisrisotto":'Mittel',"Semmelknödel mit Schwammerlsauce":'Mittel',"Erdäpfelknödel":'Mittel',"Schweinsmedaillons":'Mittel',"Schweinskarree":'Mittel',"Stelze":'Schwer',"Kalbsbraten":'Schwer',"Hühnerfrikassee":'Mittel',"Paprikahendl mit Nockerl":'Mittel',"Reisfleisch":'Mittel',"Gebackener Fisch mit Erdäpfelsalat":'Mittel',"Forelle blau":'Mittel',"Forelle Müllerin":'Mittel',"Brathendl":'Mittel',"Pariser Schnitzel":'Mittel',"Rahmschnitzel":'Mittel',"Jägerschnitzel":'Mittel',"Parmesanschnitzel":'Mittel',"Geröstete Leber mit Erdäpfelpüree":'Mittel',"Sauerbraten":'Schwer',"Rindsbraten":'Mittel',"Rindsrouladen":'Schwer',"Pizza":'Mittel',"Lasagne":'Mittel',"Hirschragout":'Schwer',"Schlutzkrapfen":'Schwer',"Kaspressknödel":'Mittel',"Spinatknödel":'Mittel',"Speckknödel":'Mittel',"Gebackene Champignons":'Mittel',"Gebackene Leber":'Mittel',"Eierschwammerl mit Knödel":'Mittel',"Fiakergulasch":'Mittel',"Szegediner Gulasch":'Mittel',"Krautfleisch":'Mittel',"Gefüllte Paprika":'Mittel',"Faschierter Braten":'Mittel',"Cordon bleu":'Mittel',"Beuschel":'Schwer',"Linsen mit Knödel":'Mittel',"Zwiebelrostbraten":'Mittel',"Backhendl":'Mittel',"Fleischlaberl":'Mittel',"Käsespätzle":'Mittel',"Tafelspitz":'Schwer',"Schweinsbraten mit Knödel und Sauerkraut":'Schwer',"Palatschinken":'Mittel',"Erdäpfelgulasch":'Mittel',"G’röste Erdäpfel":'Mittel',"Kasnocken":'Mittel',"Topfenpalatschinken":'Mittel',"Faschierte Laibchen":'Mittel',"Hendl mit Reis":'Mittel',"Fisch mit Erdäpfeln":'Mittel',"Fisch mit Reis":'Mittel',"Eiernockerl":'Mittel',"Kaiserschmarrn":'Mittel',"Frittatensuppe":'Mittel',"Semmelknödel":'Mittel',"Erdäpfelpuffer":'Mittel',"Spinat mit Ei und Erdäpfeln":'Mittel',"Schwammerlgulasch":'Mittel',"Schinkenfleckerl":'Mittel',"Spaghetti Carbonara":'Mittel',"Karfiol überbacken":'Mittel',"Wiener Schnitzel":'Mittel',"Hühnersuppe":'Mittel',"Topfenknödel":'Schwer',"Grießnockerlsuppe":'Schwer',"Rindsuppe mit Nudeln":'Schwer',"Rindsgulasch":'Schwer'};
+Object.assign(DIFF,{'Gebackener Karpfen':'Mittel','Gefüllte Kalbsbrust':'Schwer','Spanferkel':'Schwer','Surbraten':'Mittel','Geselchtes mit Knödel':'Mittel','Gefüllte Kohlrabi':'Mittel','Knödeltris':'Mittel','Milzschnittensuppe':'Mittel','Lungenstrudelsuppe':'Schwer','Leberreissuppe':'Mittel','Schöberlsuppe':'Mittel','Kaspressknödelsuppe':'Mittel','Speckknödelsuppe':'Mittel','Borschtsch':'Mittel','Gebundene Rindsuppe':'Mittel','Ochsenschwanzsuppe':'Schwer','Wildsuppe':'Mittel','Kraftsuppe':'Mittel','Kraftbrühe':'Mittel','Altwiener Suppentopf':'Mittel','Nussstrudel':'Schwer','Kirschstrudel':'Schwer','Mohnzelten':'Mittel','Nussnudeln':'Mittel','Wuchteln':'Mittel','Dukatenbuchteln':'Mittel','Germteigkrapfen':'Schwer','Faschingskrapfen':'Schwer','Mohr im Hemd':'Mittel','Sachertorte':'Schwer','Linzer Torte':'Mittel','Esterházytorte':'Schwer','Dobostorte':'Schwer','Malakofftorte':'Mittel','Versunkener Apfelkuchen':'Mittel','Rehrücken':'Mittel','Linzer Augen':'Mittel','Zimtsterne':'Mittel','Spitzbuben':'Mittel','Husarenkrapfen':'Mittel','Florentiner':'Mittel','Schwarz-Weiß-Gebäck':'Mittel','Hildaschnitten':'Mittel','Punschkrapfen':'Schwer','Cremeschnitte':'Mittel','Kremschnitte':'Mittel','Topfencremeschnitte':'Mittel','Indianerkrapfen':'Schwer','Schaumrolle':'Schwer','Eclairs':'Schwer','Bienenstich':'Mittel','Biskuitroulade':'Mittel','Nussroulade':'Mittel','Cremeroulade':'Mittel','Prinzregententorte':'Schwer','Herrentorte':'Schwer','Haselnusstorte':'Mittel','Schwarzwälder Kirschtorte':'Schwer','Topfentorte':'Mittel','Mohntorte':'Mittel','Erdbeertorte':'Mittel','Erdbeerkuchen':'Mittel','Marillenkuchen':'Mittel','Zwetschgenkuchen':'Mittel','Rhabarberkuchen':'Mittel','Heidelbeerkuchen':'Mittel','Birnenkuchen':'Mittel','Gedeckter Apfelkuchen':'Mittel','Eierlikörkuchen':'Mittel','Mousse au Chocolat':'Mittel','Crème brûlée':'Mittel'});
+const RTAGS=['Vegetarisch','Vegan','Fisch','Fleisch','Schwein','Rind','Geflügel'];
+const EXTRA=[['Schweinsbraten mit Knödel und Sauerkraut',['schwein', 'semmel', 'kraut'],'Braten würzen, 2 Std. im Rohr garen, mit Knödel und Kraut servieren.',150,['Fleisch', 'Schwein']],
+['Tafelspitz',['rind', 'karotte', 'sellerie'],'Fleisch mit Wurzelgemüse langsam weich kochen, mit Erdäpfeln und Schnittlauchsauce servieren.',150,['Fleisch', 'Rind']],
+['Käsespätzle',['mehl', 'ei', 'käse'],'Spätzleteig ins Wasser schaben, mit Käse und Röstzwiebeln schichten.',35,['Vegetarisch']],
+['Fleischlaberl',['faschiert', 'ei', 'semmel', 'zwiebel'],'Faschiertes mit Ei, Semmel und Zwiebel formen und braten.',35,['Fleisch', 'Schwein', 'Rind']],
+['Backhendl',['hendl', 'mehl', 'ei', 'brösel'],'Hendlstücke panieren und in Fett goldbraun backen.',45,['Fleisch', 'Geflügel']],
+['Zwiebelrostbraten',['rind', 'zwiebel', 'mehl'],'Fleisch braten, mit gerösteten Zwiebeln und Saft servieren.',40,['Fleisch', 'Rind']],
+['Linsen mit Knödel',['linsen', 'semmel', 'zwiebel'],'Linsen mit Zwiebel köcheln, dazu Semmelknödel.',50,['Vegetarisch']],
+['Spaghetti Bolognese',['nudeln', 'faschiert', 'paradeiser', 'zwiebel'],'Faschiertes mit Zwiebel anbraten, Paradeiser dazu, 25 Min. köcheln.',40,['Fleisch', 'Rind']],
+['Beuschel',['lunge', 'zwiebel', 'essig'],'Lunge weich kochen, schneiden und in saurer Rahmsauce schmoren.',120,['Fleisch', 'Schwein']],
+['Cordon bleu',['schwein', 'schinken', 'käse', 'brösel'],'Schnitzel mit Schinken und Käse füllen, panieren und backen.',40,['Fleisch', 'Schwein']],
+['Faschierter Braten',['faschiert', 'ei', 'semmel', 'zwiebel'],'Fleischteig formen und im Rohr braten.',70,['Fleisch', 'Schwein', 'Rind']],
+['Gefüllte Paprika',['paprika', 'faschiert', 'reis', 'paradeiser'],'Paprika mit Fleisch-Reis-Masse füllen und in Paradeisersauce garen.',60,['Fleisch', 'Schwein', 'Rind']],
+['Krautfleisch',['schwein', 'kraut', 'zwiebel'],'Fleisch mit Kraut und Zwiebel weich schmoren.',90,['Fleisch', 'Schwein']],
+['Szegediner Gulasch',['schwein', 'kraut', 'zwiebel', 'paprika'],'Gulasch mit Sauerkraut und Rahm schmoren.',100,['Fleisch', 'Schwein']],
+['Fiakergulasch',['rind', 'würstel', 'ei', 'gurke'],'Gulasch mit Würstel, Spiegelei und Gurkerl servieren.',90,['Fleisch', 'Rind', 'Schwein']],
+['Eierschwammerlgulasch',['schwammerl', 'zwiebel', 'paprika'],'Schwammerl mit Zwiebel und Paprika schmoren.',30,['Vegetarisch', 'Vegan']],
+['Eierschwammerl mit Knödel',['schwammerl', 'semmel', 'zwiebel', 'rahm'],'Schwammerl in Rahm dünsten, dazu Semmelknödel.',45,['Vegetarisch']],
+['Gebackene Leber',['leber', 'mehl', 'ei', 'brösel'],'Leber panieren und kurz backen.',30,['Fleisch']],
+['Gebackene Champignons',['schwammerl', 'mehl', 'ei', 'brösel'],'Champignons panieren und goldgelb backen.',30,['Vegetarisch']],
+['Wiener Würstel mit Senf und Gebäck',['würstel', 'semmel'],'Würstel heiß ziehen lassen, mit Senf und Gebäck servieren.',10,['Fleisch', 'Schwein', 'Rind']],
+['Käsekrainer',['würstel', 'käse', 'semmel'],'Wurst braten, mit Senf und Gebäck servieren.',15,['Fleisch', 'Schwein']],
+['Bratwurst mit Sauerkraut',['würstel', 'kraut'],'Wurst braten, Kraut erwärmen und anrichten.',25,['Fleisch', 'Schwein']],
+['Leberkäse mit Spiegelei',['leberkäs', 'ei', 'semmel'],'Leberkäse anbraten, Spiegelei darauf, mit Semmel servieren.',15,['Fleisch', 'Schwein']],
+['Leberkässemmel',['leberkäs', 'semmel'],'Leberkäse warm in die aufgeschnittene Semmel legen.',5,['Fleisch', 'Schwein']],
+['Tiroler Gröstl',['erdäpfel', 'speck', 'zwiebel', 'ei'],'Erdäpfel mit Speck und Zwiebel rösten, Spiegelei darauf.',35,['Fleisch', 'Schwein']],
+['Speckknödel',['semmel', 'speck', 'milch', 'ei'],'Semmelmasse mit Speck formen und im Wasser ziehen lassen.',45,['Fleisch', 'Schwein']],
+['Spinatknödel',['spinat', 'semmel', 'milch', 'ei'],'Semmelmasse mit Spinat formen und ziehen lassen.',45,['Vegetarisch']],
+['Kaspressknödel',['semmel', 'käse', 'milch', 'ei'],'Käse-Semmelmasse flach drücken und in der Pfanne braten.',40,['Vegetarisch']],
+['Schlutzkrapfen',['mehl', 'spinat', 'topfen', 'ei'],'Teig mit Spinat-Topfen füllen und im Salzwasser kochen.',75,['Vegetarisch']],
+['Hirschragout',['wild', 'zwiebel', 'rotwein'],'Wildfleisch mit Zwiebel und Rotwein weich schmoren.',150,['Fleisch']],
+['Lasagne',['nudeln', 'faschiert', 'paradeiser', 'käse'],'Nudelplatten mit Fleischsauce und Käse schichten und backen.',80,['Fleisch', 'Rind']],
+['Pizza',['mehl', 'paradeiser', 'käse'],'Teig ausrollen, belegen und im heißen Rohr backen.',60,['Vegetarisch']],
+['Rindsrouladen',['rind', 'speck', 'gurke', 'zwiebel'],'Fleisch füllen, einrollen und weich schmoren.',120,['Fleisch', 'Rind']],
+['Rindsbraten',['rind', 'zwiebel', 'karotte'],'Braten anbraten und mit Gemüse im Rohr garen.',150,['Fleisch', 'Rind']],
+['Sauerbraten',['rind', 'essig', 'zwiebel'],'Fleisch mehrere Tage einlegen, dann weich schmoren.',180,['Fleisch', 'Rind']],
+['Geschnetzeltes mit Reis',['hendl', 'reis', 'rahm'],'Fleisch in Streifen braten, mit Rahm und Reis servieren.',30,['Fleisch', 'Geflügel']],
+['Geröstete Leber mit Erdäpfelpüree',['leber', 'erdäpfel', 'zwiebel'],'Leber mit Zwiebel rösten, dazu Püree.',30,['Fleisch']],
+['Naturschnitzel',['schwein', 'mehl', 'zwiebel'],'Schnitzel braten, mit Bratensaft servieren.',25,['Fleisch', 'Schwein']],
+['Parmesanschnitzel',['schwein', 'käse', 'ei'],'Schnitzel mit Käse und Ei backen.',35,['Fleisch', 'Schwein']],
+['Jägerschnitzel',['schwein', 'schwammerl', 'rahm'],'Schnitzel braten, mit Schwammerlrahmsauce servieren.',35,['Fleisch', 'Schwein']],
+['Rahmschnitzel',['schwein', 'rahm', 'zwiebel'],'Schnitzel braten und in Rahmsauce schwenken.',30,['Fleisch', 'Schwein']],
+['Pariser Schnitzel',['schwein', 'mehl', 'ei'],'Schnitzel in Mehl und Ei wenden und backen.',30,['Fleisch', 'Schwein']],
+['Brathendl',['hendl', 'butter', 'paprika'],'Hendl würzen und im Rohr goldbraun braten.',75,['Fleisch', 'Geflügel']],
+['Grillhendl mit Pommes',['hendl', 'pommes'],'Hendl im Rohr braten, Pommes dazu backen.',50,['Fleisch', 'Geflügel']],
+['Forelle Müllerin',['fisch', 'mehl', 'butter'],'Fisch in Mehl wenden und in Butter braten.',25,['Fisch']],
+['Forelle blau',['fisch', 'essig', 'erdäpfel'],'Fisch im Essigsud ziehen lassen, mit Erdäpfeln servieren.',30,['Fisch']],
+['Gebackener Fisch mit Erdäpfelsalat',['fisch', 'erdäpfel', 'brösel', 'ei'],'Fisch panieren und backen, dazu Erdäpfelsalat.',40,['Fisch']],
+['Lachs mit Gemüse',['fisch', 'karotte', 'butter'],'Lachs braten, Gemüse in Butter dünsten.',25,['Fisch']],
+['Reisfleisch',['reis', 'schwein', 'zwiebel', 'paprika'],'Fleisch mit Zwiebel anrösten, Reis und Suppe dazu, garen.',45,['Fleisch', 'Schwein']],
+['Risibisi',['reis', 'erbsen', 'zwiebel'],'Reis mit Erbsen und Zwiebel in Suppe garen.',30,['Vegetarisch']],
+['Paprikahendl mit Nockerl',['hendl', 'paprika', 'rahm', 'mehl'],'Hendl in Paprikasauce schmoren, dazu Nockerl.',60,['Fleisch', 'Geflügel']],
+['Hühnerfrikassee',['hendl', 'rahm', 'reis'],'Hendl in heller Rahmsauce garen, mit Reis servieren.',50,['Fleisch', 'Geflügel']],
+['Hühnerkeule aus dem Rohr',['hendl', 'erdäpfel', 'zwiebel'],'Keulen würzen und mit Erdäpfeln im Rohr braten.',60,['Fleisch', 'Geflügel']],
+['Kalbsbraten',['kalb', 'zwiebel', 'karotte'],'Braten anbraten und langsam im Rohr garen.',120,['Fleisch']],
+['Stelze',['schwein', 'zwiebel', 'kümmel'],'Stelze würzen, im Rohr knusprig braten.',150,['Fleisch', 'Schwein']],
+['Schweinskarree',['schwein', 'zwiebel', 'karotte'],'Karree anbraten und im Rohr garen.',60,['Fleisch', 'Schwein']],
+['Schweinsmedaillons',['schwein', 'rahm', 'schwammerl'],'Medaillons braten, mit Rahmsauce servieren.',25,['Fleisch', 'Schwein']],
+['Blunzengröstl',['blunze', 'erdäpfel', 'zwiebel'],'Erdäpfel rösten, Blunze und Zwiebel dazu.',30,['Fleisch', 'Schwein']],
+['Bratwürstel mit Püree',['würstel', 'erdäpfel', 'milch'],'Würstel braten, Erdäpfelpüree dazu.',30,['Fleisch', 'Schwein']],
+['Erdäpfelknödel',['erdäpfel', 'mehl', 'ei'],'Erdäpfelteig formen und im Wasser ziehen lassen.',50,['Vegetarisch']],
+['Semmelknödel mit Schwammerlsauce',['semmel', 'schwammerl', 'rahm', 'ei'],'Semmelknödel kochen, Schwammerl in Rahm dünsten.',50,['Vegetarisch']],
+['Gemüselaibchen',['karotte', 'zwiebel', 'ei', 'mehl'],'Gemüse reiben, mit Ei und Mehl braten.',30,['Vegetarisch']],
+['Kürbisrisotto',['kürbis', 'reis', 'zwiebel'],'Kürbis und Reis nach und nach mit Suppe garen.',40,['Vegetarisch']],
+['Kohlrouladen',['kraut', 'faschiert', 'reis'],'Krautblätter füllen, einrollen und schmoren.',90,['Fleisch', 'Schwein', 'Rind']],
+['Gefüllte Zucchini',['zucchini', 'faschiert', 'käse'],'Zucchini aushöhlen, füllen und im Rohr backen.',45,['Fleisch', 'Schwein', 'Rind']],
+['Gefüllte Tomaten',['paradeiser', 'reis', 'käse'],'Paradeiser füllen und im Rohr garen.',40,['Vegetarisch']],
+['Gemüselasagne',['nudeln', 'zucchini', 'paradeiser', 'käse'],'Nudelplatten mit Gemüse und Käse schichten.',70,['Vegetarisch']],
+['Gemüsecurry',['karotte', 'paprika', 'reis', 'zwiebel'],'Gemüse mit Curry anrösten, mit Reis servieren.',35,['Vegetarisch', 'Vegan']],
+['Chili con Carne',['faschiert', 'bohnen', 'paradeiser', 'mais'],'Fleisch mit Bohnen und Paradeiser köcheln.',60,['Fleisch', 'Rind']],
+['Burger',['faschiert', 'semmel', 'paradeiser', 'käse'],'Laibchen braten und in der Semmel belegen.',30,['Fleisch', 'Rind']],
+['Verhackertbrot',['speck', 'brot'],'Speck fein hacken und aufs Brot streichen.',10,['Fleisch', 'Schwein']],
+['Brettljause',['brot', 'käse', 'speck'],'Brot, Käse, Speck und Gemüse anrichten.',10,['Fleisch', 'Schwein']],
+['Omelett',['ei', 'milch', 'butter'],'Eier verquirlen und in Butter stocken lassen.',10,['Vegetarisch']],
+['Tortellini mit Sahnesauce',['nudeln', 'rahm', 'schinken'],'Tortellini kochen, mit Rahm und Schinken mischen.',20,['Fleisch', 'Schwein']],
+['Leberknödelsuppe',['leber', 'semmel', 'suppenwürfel'],'Leberknödel formen und in Suppe ziehen lassen.',60,['Fleisch']],
+['Rindsuppe mit Einlage',['rind', 'karotte', 'suppenwürfel'],'Rindsuppe kochen und mit Einlage servieren.',120,['Fleisch', 'Rind']],
+['Knödelsuppe',['semmel', 'suppenwürfel', 'ei'],'Kleine Knödel in Suppe ziehen lassen.',40,['Vegetarisch']],
+['Kürbiscremesuppe',['kürbis', 'zwiebel', 'rahm'],'Kürbis weich kochen, pürieren, mit Rahm verfeinern.',35,['Vegetarisch']],
+['Gulaschsuppe',['rind', 'zwiebel', 'paprika', 'erdäpfel'],'Gulaschfleisch mit Erdäpfeln in Suppe köcheln.',70,['Fleisch', 'Rind']],
+['Gerstlsuppe',['gerste', 'karotte', 'suppenwürfel'],'Gerste mit Gemüse in Suppe weich kochen.',60,['Vegetarisch']],
+['Zwiebelsuppe',['zwiebel', 'mehl', 'suppenwürfel'],'Zwiebel dunkel rösten, mit Suppe aufgießen.',40,['Vegetarisch']],
+['Knoblauchsuppe',['knoblauch', 'brot', 'suppenwürfel'],'Knoblauch dünsten, mit Suppe kochen, Brot dazu.',25,['Vegetarisch']],
+['Karottensuppe',['karotte', 'zwiebel', 'suppenwürfel'],'Karotten weich kochen und pürieren.',30,['Vegetarisch', 'Vegan']],
+['Brokkolicremesuppe',['brokkoli', 'zwiebel', 'rahm'],'Brokkoli in Suppe kochen, pürieren, Rahm dazu.',30,['Vegetarisch']],
+['Spargelcremesuppe',['spargel', 'rahm', 'suppenwürfel'],'Spargel kochen, pürieren und mit Rahm verfeinern.',35,['Vegetarisch']],
+['Bärlauchsuppe',['bärlauch', 'erdäpfel', 'suppenwürfel'],'Erdäpfel kochen, Bärlauch dazu, pürieren.',30,['Vegetarisch']],
+['Schwammerlsuppe',['schwammerl', 'zwiebel', 'rahm'],'Schwammerl dünsten, mit Suppe und Rahm kochen.',35,['Vegetarisch']],
+['Selleriesuppe',['sellerie', 'zwiebel', 'suppenwürfel'],'Sellerie weich kochen und pürieren.',35,['Vegetarisch']],
+['Kohlrabisuppe',['kohlrabi', 'zwiebel', 'suppenwürfel'],'Kohlrabi weich kochen und pürieren.',30,['Vegetarisch']],
+['Blumenkohlsuppe',['karfiol', 'zwiebel', 'suppenwürfel'],'Karfiol weich kochen und pürieren.',30,['Vegetarisch']],
+['Zucchinisuppe',['zucchini', 'zwiebel', 'suppenwürfel'],'Zucchini dünsten, mit Suppe kochen, pürieren.',25,['Vegetarisch', 'Vegan']],
+['Erbsensuppe',['erbsen', 'zwiebel', 'suppenwürfel'],'Erbsen in Suppe kochen und pürieren.',30,['Vegetarisch', 'Vegan']],
+['Gemüsesuppe',['karotte', 'sellerie', 'erdäpfel', 'suppenwürfel'],'Gemüse klein schneiden und weich kochen.',35,['Vegetarisch', 'Vegan']],
+['Minestrone',['nudeln', 'karotte', 'bohnen', 'paradeiser'],'Gemüse mit Nudeln und Bohnen köcheln.',40,['Vegetarisch', 'Vegan']],
+['Fisolensuppe',['fisolen', 'erdäpfel', 'suppenwürfel'],'Fisolen und Erdäpfel in Suppe kochen.',30,['Vegetarisch']],
+['Käsesuppe',['käse', 'zwiebel', 'suppenwürfel'],'Zwiebel dünsten, Suppe aufgießen, Käse einrühren.',25,['Vegetarisch']],
+['Brotsuppe',['brot', 'zwiebel', 'suppenwürfel'],'Altes Brot in Suppe kochen und abschmecken.',25,['Vegetarisch']],
+['Backerbsensuppe',['mehl', 'ei', 'suppenwürfel'],'Teigperlen in Fett ausbacken und in Suppe geben.',30,['Vegetarisch']],
+['Grießsuppe',['grieß', 'suppenwürfel'],'Grieß in Suppe einrühren und quellen lassen.',20,['Vegetarisch']],
+['Reissuppe',['reis', 'karotte', 'suppenwürfel'],'Reis mit Gemüse in Suppe kochen.',30,['Vegetarisch', 'Vegan']],
+['Haferflockensuppe',['haferflocken', 'zwiebel', 'suppenwürfel'],'Haferflocken in Suppe kochen.',25,['Vegetarisch']],
+['Krautsuppe',['kraut', 'zwiebel', 'suppenwürfel'],'Kraut mit Zwiebel in Suppe weich kochen.',35,['Vegetarisch', 'Vegan']],
+['Lauchsuppe',['lauch', 'erdäpfel', 'suppenwürfel'],'Lauch und Erdäpfel kochen, pürieren.',30,['Vegetarisch']],
+['Spinatsuppe',['spinat', 'zwiebel', 'suppenwürfel'],'Spinat in Suppe kochen und pürieren.',25,['Vegetarisch']],
+['Paprikasuppe',['paprika', 'zwiebel', 'suppenwürfel'],'Paprika dünsten, kochen und pürieren.',30,['Vegetarisch', 'Vegan']],
+['Maissuppe',['mais', 'zwiebel', 'suppenwürfel'],'Mais in Suppe kochen und pürieren.',25,['Vegetarisch', 'Vegan']],
+['Süßkartoffelsuppe',['süßkartoffel', 'zwiebel', 'suppenwürfel'],'Süßkartoffel weich kochen und pürieren.',30,['Vegetarisch', 'Vegan']],
+['Hokkaido-Suppe',['kürbis', 'zwiebel', 'suppenwürfel'],'Hokkaido mit Schale kochen und pürieren.',30,['Vegetarisch', 'Vegan']],
+['Fischsuppe',['fisch', 'paradeiser', 'zwiebel'],'Fisch in Paradeisersud garen.',40,['Fisch']],
+['Wurstsuppe',['würstel', 'erdäpfel', 'suppenwürfel'],'Würstel und Erdäpfel in Suppe kochen.',25,['Fleisch', 'Schwein']],
+['Nudelsuppe',['nudeln', 'suppenwürfel'],'Nudeln in heißer Suppe garen.',15,['Vegetarisch', 'Vegan']],
+['Gazpacho',['paradeiser', 'gurke', 'paprika'],'Gemüse pürieren und kalt servieren.',15,['Vegetarisch', 'Vegan']],
+['Apfelstrudel',['apfel', 'mehl', 'zucker'],'Teig dünn ausziehen, mit Äpfeln füllen und backen.',90,['Vegetarisch']],
+['Topfenstrudel',['topfen', 'mehl', 'ei'],'Teig mit Topfenfülle einrollen und backen.',90,['Vegetarisch']],
+['Milchrahmstrudel',['mehl', 'milch', 'ei'],'Teig mit Rahmfülle backen.',90,['Vegetarisch']],
+['Mohnstrudel',['mohn', 'mehl', 'zucker'],'Germteig mit Mohnfülle einrollen und backen.',100,['Vegetarisch']],
+['Marillenknödel',['marille', 'topfen', 'mehl'],'Marillen im Teig einhüllen und im Wasser ziehen lassen.',60,['Vegetarisch']],
+['Zwetschgenknödel',['zwetschge', 'erdäpfel', 'mehl'],'Zwetschgen im Erdäpfelteig kochen.',60,['Vegetarisch']],
+['Germknödel',['mehl', 'germ', 'milch', 'powidl'],'Germteig füllen, dämpfen und mit Mohn servieren.',90,['Vegetarisch']],
+['Mohnnudeln',['erdäpfel', 'mehl', 'mohn'],'Erdäpfelnudeln in Mohn und Zucker wälzen.',50,['Vegetarisch']],
+['Topfennudeln',['nudeln', 'topfen', 'zucker'],'Nudeln mit Topfen und Zucker mischen.',25,['Vegetarisch']],
+['Buchteln',['mehl', 'germ', 'milch', 'butter'],'Germteig füllen und im Rohr backen.',90,['Vegetarisch']],
+['Powidltascherl',['erdäpfel', 'mehl', 'powidl'],'Teig mit Powidl füllen und kochen.',60,['Vegetarisch']],
+['Salzburger Nockerl',['ei', 'zucker', 'mehl'],'Eischnee mit Dotter vermengen und im Rohr backen.',40,['Vegetarisch']],
+['Gugelhupf',['mehl', 'ei', 'butter', 'zucker'],'Rührteig in der Form backen.',75,['Vegetarisch']],
+['Marmorkuchen',['mehl', 'ei', 'butter', 'kakao'],'Hellen und dunklen Teig marmorieren und backen.',70,['Vegetarisch']],
+['Topfenkuchen',['topfen', 'ei', 'mehl', 'zucker'],'Topfenmasse auf Mürbteig backen.',70,['Vegetarisch']],
+['Apfelkuchen',['apfel', 'mehl', 'ei', 'zucker'],'Äpfel auf Rührteig verteilen und backen.',60,['Vegetarisch']],
+['Mohnkuchen',['mohn', 'mehl', 'ei', 'zucker'],'Mohnteig backen.',70,['Vegetarisch']],
+['Nusskuchen',['nüsse', 'mehl', 'ei', 'zucker'],'Nussteig backen.',60,['Vegetarisch']],
+['Vanillekipferl',['mehl', 'butter', 'nüsse', 'zucker'],'Teig zu Kipferln formen, backen, in Vanillezucker wälzen.',60,['Vegetarisch']],
+['Kokosbusserl',['kokos', 'ei', 'zucker'],'Eischnee mit Kokos mischen und backen.',30,['Vegetarisch']],
+['Lebkuchen',['mehl', 'honig', 'ei'],'Honigteig backen und glasieren.',60,['Vegetarisch']],
+['Käsekuchen',['topfen', 'ei', 'zucker', 'mehl'],'Topfenmasse backen.',75,['Vegetarisch']],
+['Zitronenkuchen',['zitrone', 'mehl', 'ei', 'butter'],'Rührteig mit Zitrone backen.',60,['Vegetarisch']],
+['Karottenkuchen',['karotte', 'mehl', 'ei', 'nüsse'],'Geriebene Karotten in den Teig geben und backen.',60,['Vegetarisch']],
+['Schokokuchen',['schokolade', 'mehl', 'ei', 'butter'],'Schokoteig backen.',50,['Vegetarisch']],
+['Brownies',['schokolade', 'butter', 'ei', 'mehl'],'Schokomasse backen und in Stücke schneiden.',35,['Vegetarisch']],
+['Apfelschmarrn',['apfel', 'mehl', 'ei', 'milch'],'Schmarrn mit Apfelstücken backen und zerreißen.',30,['Vegetarisch']],
+['Semmelschmarrn',['semmel', 'milch', 'ei', 'zucker'],'Semmelwürfel in Milch einweichen und rösten.',25,['Vegetarisch']],
+['Grießschmarrn',['grieß', 'milch', 'ei', 'butter'],'Grießmasse in Butter rösten und zerreißen.',25,['Vegetarisch']],
+['Topfenschmarrn',['topfen', 'mehl', 'ei'],'Topfenteig backen und zerreißen.',25,['Vegetarisch']],
+['Scheiterhaufen',['semmel', 'apfel', 'milch', 'ei'],'Semmeln mit Äpfeln schichten, mit Eiermilch backen.',60,['Vegetarisch']],
+['Reisauflauf',['reis', 'milch', 'ei', 'zucker'],'Milchreis mit Ei im Rohr backen.',60,['Vegetarisch']],
+['Grießbrei',['grieß', 'milch', 'zucker'],'Grieß in Milch kochen und quellen lassen.',15,['Vegetarisch']],
+['Topfencreme',['topfen', 'zucker', 'rahm'],'Topfen mit Zucker und Schlagobers verrühren.',10,['Vegetarisch']],
+['Vanillepudding',['milch', 'zucker', 'vanille'],'Milch mit Pudding aufkochen und abkühlen.',20,['Vegetarisch']],
+['Schokopudding',['milch', 'zucker', 'kakao'],'Milch mit Kakao und Pudding aufkochen.',20,['Vegetarisch']],
+['Tiramisu',['kaffee', 'topfen', 'ei', 'zucker'],'Biskotten tränken und mit Creme schichten.',30,['Vegetarisch']],
+['Panna cotta',['rahm', 'zucker', 'gelatine'],'Rahm mit Zucker und Gelatine aufkochen, kalt stellen.',20,['Vegetarisch']],
+['Eisbecher mit Schlagobers',['eis', 'rahm'],'Eis in Gläser geben und mit Schlagobers toppen.',10,['Vegetarisch']],
+['Gebackene Apfelradln',['apfel', 'mehl', 'ei', 'milch'],'Apfelscheiben in Teig tauchen und backen.',30,['Vegetarisch']],
+['Schweinsschnitzel',['schwein', 'mehl', 'ei', 'brösel'],'Schnitzel klopfen, panieren und in heißem Fett goldgelb backen.',30,['Fleisch', 'Schwein']],
+['Gebackener Karpfen',['fisch','mehl','ei','brösel'],'Karpfenstücke panieren und in Fett goldbraun backen.',40,['Fisch']],
+['Gefüllte Kalbsbrust',['kalb','semmel','ei','zwiebel'],'Kalbsbrust mit Semmelfülle füllen und im Rohr langsam braten.',150,['Fleisch']],
+['Spanferkel',['schwein','knoblauch','kümmel'],'Ferkel würzen und mehrere Stunden im Rohr knusprig braten.',240,['Fleisch','Schwein']],
+['Surbraten',['schwein','knoblauch','kümmel'],'Gepökeltes Fleisch mit Kümmel und Knoblauch im Rohr braten.',120,['Fleisch','Schwein']],
+['Selchfleisch mit Sauerkraut',['schwein','kraut','zwiebel'],'Selchfleisch weich kochen, Kraut mit Zwiebel dünsten und anrichten.',90,['Fleisch','Schwein']],
+['Geselchtes mit Knödel',['schwein','semmel','kraut'],'Geselchtes kochen und mit Semmelknödel und Kraut servieren.',90,['Fleisch','Schwein']],
+['Reiberdatschi',['erdäpfel','ei','zwiebel','mehl'],'Erdäpfel reiben, mit Ei und Zwiebel mischen und in der Pfanne ausbacken.',35,['Vegetarisch']],
+['Kürbisgemüse mit Dille',['kürbis','zwiebel','rahm','dille'],'Kürbis mit Zwiebel dünsten, mit Rahm und Dille abschmecken.',30,['Vegetarisch']],
+['Gefüllte Kohlrabi',['kohlrabi','faschiert','reis','zwiebel'],'Kohlrabi aushöhlen, mit Fleisch-Reis-Masse füllen und garen.',50,['Fleisch','Schwein','Rind']],
+['Toast Hawaii',['toast','schinken','käse','ananas'],'Toast mit Schinken, Ananas und Käse belegen und überbacken.',15,['Fleisch','Schwein']],
+['Knödeltris',['semmel','spinat','käse','ei'],'Drei Sorten Semmelknödel formen und im Wasser ziehen lassen.',50,['Vegetarisch']],
+['Knödel mit Ei',['semmel','ei','zwiebel','milch'],'Semmelknödel in Scheiben schneiden, anrösten und Eier darüber stocken lassen.',20,['Vegetarisch']],
+['Kümmelsuppe',['kümmel','zwiebel','brot','suppenwürfel'],'Kümmel und Zwiebel in Suppe kochen, über geröstetes Brot gießen.',25,['Vegetarisch']],
+['Einbrennsuppe',['mehl','butter','suppenwürfel'],'Mehl in Butter bräunen und mit Suppe aufgießen.',25,['Vegetarisch']],
+['Saure Suppe',['mehl','rahm','essig','suppenwürfel'],'Einbrenn mit Suppe aufgießen, mit Rahm und Essig abschmecken.',30,['Vegetarisch']],
+['Sauerrahmsuppe',['rahm','mehl','suppenwürfel'],'Mehl mit Rahm verrühren und in Suppe einkochen.',25,['Vegetarisch']],
+['Biersuppe',['bier','rahm','mehl'],'Mehl anrösten, mit Bier und Rahm aufgießen und verkochen.',25,['Vegetarisch']],
+['Weinsuppe',['wein','ei','zucker'],'Wein mit Zucker erhitzen und mit Eigelb legieren.',20,['Vegetarisch']],
+['Milzschnittensuppe',['milz','semmel','suppenwürfel'],'Semmelschnitten mit Milzmasse bestreichen, backen und in Suppe servieren.',40,['Fleisch','Rind']],
+['Lungenstrudelsuppe',['lunge','mehl','suppenwürfel'],'Lungenfülle in Strudelteig einrollen, kochen und in Suppe servieren.',90,['Fleisch','Schwein']],
+['Leberreissuppe',['leber','grieß','suppenwürfel'],'Leber mit Grieß vermengen, in Suppe einreiben und ziehen lassen.',35,['Fleisch']],
+['Schöberlsuppe',['mehl','ei','suppenwürfel'],'Biskuitteig backen, in Würfel schneiden und in heißer Suppe servieren.',40,['Vegetarisch']],
+['Kaspressknödelsuppe',['semmel','käse','suppenwürfel','ei'],'Kaspressknödel braten und in heißer Suppe servieren.',50,['Vegetarisch']],
+['Speckknödelsuppe',['semmel','speck','suppenwürfel'],'Speckknödel formen, kochen und in Suppe servieren.',50,['Fleisch','Schwein']],
+['Hirsesuppe',['hirse','karotte','suppenwürfel'],'Hirse mit Karotten in Suppe weich kochen.',35,['Vegetarisch','Vegan']],
+['Buchweizensuppe',['buchweizen','zwiebel','suppenwürfel'],'Buchweizen mit Zwiebel in Suppe kochen.',35,['Vegetarisch','Vegan']],
+['Rahmsuppe',['rahm','mehl','suppenwürfel'],'Mehlschwitze mit Suppe aufgießen und mit Rahm verfeinern.',25,['Vegetarisch']],
+['Kartoffelgulaschsuppe',['erdäpfel','paprika','zwiebel','würstel'],'Zwiebel rösten, Paprika, Erdäpfel und Würstel dazu, mit Wasser kochen.',45,['Fleisch','Schwein']],
+['Sauerkrautsuppe',['kraut','zwiebel','speck'],'Speck und Zwiebel anrösten, Kraut dazu und in Suppe kochen.',40,['Fleisch','Schwein']],
+['Rote-Rüben-Suppe',['rote rüben','zwiebel','suppenwürfel'],'Rote Rüben mit Zwiebel weich kochen und pürieren.',40,['Vegetarisch','Vegan']],
+['Borschtsch',['rote rüben','kraut','erdäpfel'],'Gemüse in Suppe weich kochen, mit Essig abschmecken.',70,['Vegetarisch','Vegan']],
+['Rübensuppe',['rüben','zwiebel','suppenwürfel'],'Rüben mit Zwiebel kochen und pürieren.',35,['Vegetarisch','Vegan']],
+['Petersilwurzelsuppe',['petersilwurzel','erdäpfel','suppenwürfel'],'Petersilwurzel mit Erdäpfeln weich kochen und pürieren.',35,['Vegetarisch']],
+['Brennnesselsuppe',['brennnessel','erdäpfel','suppenwürfel'],'Erdäpfel kochen, Brennnessel kurz mitkochen und pürieren.',30,['Vegetarisch']],
+['Kressesuppe',['kresse','erdäpfel','suppenwürfel'],'Erdäpfel kochen, pürieren und Kresse einrühren.',25,['Vegetarisch']],
+['Kokos-Curry-Suppe',['kokos','curry','karotte'],'Gemüse mit Curry anrösten, Kokosmilch zugießen und kochen.',30,['Vegetarisch','Vegan']],
+['Ingwer-Karotten-Suppe',['ingwer','karotte','zwiebel'],'Karotten, Zwiebel und Ingwer weich kochen und pürieren.',30,['Vegetarisch','Vegan']],
+['Kürbis-Ingwer-Suppe',['kürbis','ingwer','zwiebel'],'Kürbis mit Ingwer und Zwiebel weich kochen und pürieren.',30,['Vegetarisch','Vegan']],
+['Maronisuppe',['maroni','zwiebel','rahm'],'Maroni mit Zwiebel kochen, pürieren und mit Rahm verfeinern.',40,['Vegetarisch']],
+['Gebundene Rindsuppe',['rind','mehl','karotte'],'Rindsuppe kochen und mit Mehlschwitze binden.',120,['Fleisch','Rind']],
+['Ochsenschwanzsuppe',['rind','zwiebel','karotte'],'Ochsenschwanz mit Gemüse stundenlang weich kochen.',180,['Fleisch','Rind']],
+['Wildsuppe',['wild','zwiebel','karotte'],'Wildfleisch mit Gemüse langsam auskochen.',120,['Fleisch']],
+['Kraftsuppe',['rind','karotte','sellerie'],'Rindfleisch mit Wurzelgemüse lange auskochen und klären.',120,['Fleisch','Rind']],
+['Kraftbrühe',['rind','zwiebel','sellerie'],'Knochen und Fleisch langsam auskochen und abseihen.',150,['Fleisch','Rind']],
+['Hühnercremesuppe',['hendl','rahm','mehl'],'Hendl kochen, Suppe mit Mehl binden und Rahm einrühren.',60,['Fleisch','Geflügel']],
+['Schinkensuppe',['schinken','erdäpfel','suppenwürfel'],'Erdäpfel in Suppe kochen, Schinkenwürfel dazugeben.',30,['Fleisch','Schwein']],
+['Frankfurtersuppe',['würstel','erdäpfel','suppenwürfel'],'Erdäpfel in Suppe kochen, Würstelscheiben einlegen.',25,['Fleisch','Schwein']],
+['Würstelsuppe',['würstel','nudeln','suppenwürfel'],'Würstel und Nudeln in heißer Suppe garen.',20,['Fleisch','Schwein']],
+['Bauernsuppe',['erdäpfel','karotte','speck'],'Speck anrösten, Gemüse dazu und weich kochen.',40,['Fleisch','Schwein']],
+['Altwiener Suppentopf',['rind','karotte','sellerie','erdäpfel'],'Rindfleisch mit Wurzelgemüse und Erdäpfeln langsam kochen.',100,['Fleisch','Rind']],
+['Suppentopf',['karotte','erdäpfel','zwiebel'],'Gemüse klein schneiden und in Suppe weich kochen.',40,['Vegetarisch','Vegan']],
+['Eintopf',['erdäpfel','karotte','würstel'],'Gemüse und Würstel in einem Topf weich kochen.',45,['Fleisch','Schwein']],
+['Steirische Kürbiscremesuppe mit Kernöl',['kürbis','rahm','kernöl'],'Kürbis weich kochen, pürieren, Rahm einrühren und mit Kernöl beträufeln.',35,['Vegetarisch']],
+['Steirische Wurzelsuppe',['karotte','sellerie','erdäpfel'],'Wurzelgemüse klein schneiden und in Suppe weich kochen.',35,['Vegetarisch','Vegan']],
+['Tomaten-Reis-Suppe',['paradeiser','reis','zwiebel'],'Zwiebel anrösten, Paradeiser und Reis dazu, in Suppe garen.',30,['Vegetarisch','Vegan']],
+['Tomaten-Basilikum-Suppe',['paradeiser','basilikum','zwiebel'],'Paradeiser mit Zwiebel kochen, pürieren und Basilikum einrühren.',25,['Vegetarisch','Vegan']],
+['Kalte Gurkensuppe',['gurke','joghurt','knoblauch'],'Gurke mit Joghurt und Knoblauch pürieren und kalt servieren.',15,['Vegetarisch']],
+['Kaltschale',['beeren','milch','zucker'],'Beeren mit Milch und Zucker pürieren und kalt stellen.',15,['Vegetarisch']],
+['Kalte Beerensuppe',['beeren','joghurt','zucker'],'Beeren mit Joghurt und Zucker pürieren und kalt servieren.',15,['Vegetarisch']],
+['Gemüsecremesuppe',['karotte','erdäpfel','rahm'],'Gemüse weich kochen, pürieren und mit Rahm verfeinern.',35,['Vegetarisch']],
+['Erbsen-Minze-Suppe',['erbsen','minze','zwiebel'],'Erbsen mit Zwiebel kochen, pürieren und Minze einrühren.',25,['Vegetarisch','Vegan']],
+['Zwiebelcremesuppe',['zwiebel','rahm','mehl'],'Zwiebel goldgelb dünsten, mit Mehl stauben, aufgießen und Rahm einrühren.',35,['Vegetarisch']],
+['Kürbis-Kokos-Suppe',['kürbis','kokos','zwiebel'],'Kürbis mit Zwiebel kochen, Kokosmilch zugießen und pürieren.',30,['Vegetarisch','Vegan']],
+['Nussstrudel',['nüsse','mehl','zucker','ei'],'Strudelteig mit Nussfülle einrollen und backen.',90,['Vegetarisch']],
+['Kirschstrudel',['kirschen','mehl','zucker'],'Strudelteig mit Kirschen füllen und backen.',90,['Vegetarisch']],
+['Mohnzelten',['erdäpfel','mohn','mehl'],'Erdäpfelteig mit Mohnfülle formen und kochen.',60,['Vegetarisch']],
+['Nussnudeln',['erdäpfel','nüsse','mehl'],'Erdäpfelnudeln formen, kochen und in Nüssen wälzen.',50,['Vegetarisch']],
+['Wuchteln',['mehl','germ','milch','butter'],'Germteig formen, aufgehen lassen und im Rohr backen.',90,['Vegetarisch']],
+['Dukatenbuchteln',['mehl','germ','milch','butter'],'Germteig mit Marmelade füllen und mit Vanillesauce backen.',90,['Vegetarisch']],
+['Germteigkrapfen',['mehl','germ','milch','marmelade'],'Germteig ausstechen, füllen und in Fett ausbacken.',100,['Vegetarisch']],
+['Faschingskrapfen',['mehl','germ','milch','marmelade'],'Germteig formen, in Fett backen, mit Marillenmarmelade füllen.',100,['Vegetarisch']],
+['Zwetschgenröster',['zwetschge','zucker','zimt'],'Zwetschgen mit Zucker und Zimt weich kochen.',30,['Vegetarisch','Vegan']],
+['Mohr im Hemd',['schokolade','ei','nüsse','rahm'],'Schokoladenmasse im Wasserbad garen und mit Schlagobers servieren.',50,['Vegetarisch']],
+['Sachertorte',['schokolade','ei','butter','marmelade'],'Schokoteig backen, mit Marillenmarmelade füllen und glasieren.',120,['Vegetarisch']],
+['Linzer Torte',['mehl','nüsse','butter','marmelade'],'Nussmürbteig mit Ribiselmarmelade füllen und mit Gitter backen.',90,['Vegetarisch']],
+['Esterházytorte',['nüsse','ei','butter','zucker'],'Nussböden backen und mit Creme schichten.',150,['Vegetarisch']],
+['Dobostorte',['ei','mehl','butter','schokolade'],'Dünne Biskuitböden mit Schokocreme schichten, mit Karamell überziehen.',150,['Vegetarisch']],
+['Malakofftorte',['biskotten','rahm','zucker','ei'],'Biskotten tränken und mit Creme schichten.',60,['Vegetarisch']],
+['Versunkener Apfelkuchen',['apfel','mehl','ei','zucker'],'Äpfel in den Rührteig drücken und backen.',60,['Vegetarisch']],
+['Rehrücken',['schokolade','nüsse','ei','butter'],'Schokoladen-Nussteig in der Rehrückenform backen.',80,['Vegetarisch']],
+['Linzer Augen',['mehl','butter','marmelade','zucker'],'Mürbteig ausstechen, backen und mit Marmelade zusammensetzen.',60,['Vegetarisch']],
+['Zimtsterne',['nüsse','ei','zucker','zimt'],'Eischnee mit Nüssen und Zimt ausstechen und backen.',60,['Vegetarisch']],
+['Spitzbuben',['mehl','butter','zucker','marmelade'],'Mürbteig ausstechen, backen und mit Marmelade füllen.',60,['Vegetarisch']],
+['Husarenkrapfen',['mehl','butter','ei','marmelade'],'Mürbteigkugeln backen und mit Marmelade füllen.',50,['Vegetarisch']],
+['Florentiner',['mandeln','butter','zucker','schokolade'],'Mandelmasse backen und mit Schokolade bestreichen.',40,['Vegetarisch']],
+['Schwarz-Weiß-Gebäck',['mehl','butter','zucker','kakao'],'Hellen und dunklen Teig zusammenrollen, schneiden und backen.',60,['Vegetarisch']],
+['Butterkekse',['mehl','butter','zucker','ei'],'Mürbteig ausrollen, ausstechen und backen.',40,['Vegetarisch']],
+['Hildaschnitten',['ei','mehl','marmelade','schokolade'],'Biskuit mit Marmelade füllen und mit Schokolade glasieren.',60,['Vegetarisch']],
+['Punschkrapfen',['mehl','ei','marmelade','zucker'],'Biskuitbrösel mit Marmelade und Punsch formen und glasieren.',90,['Vegetarisch']],
+['Cremeschnitte',['blätterteig','milch','ei','zucker'],'Blätterteig backen und mit Vanillecreme schichten.',90,['Vegetarisch']],
+['Kremschnitte',['blätterteig','milch','ei','zucker'],'Blätterteig backen und mit Vanillecreme schichten.',90,['Vegetarisch']],
+['Topfencremeschnitte',['blätterteig','topfen','rahm','zucker'],'Blätterteig backen und mit Topfencreme schichten.',60,['Vegetarisch']],
+['Indianerkrapfen',['ei','zucker','schokolade','rahm'],'Biskuithälften backen, mit Schlagobers füllen und glasieren.',80,['Vegetarisch']],
+['Schaumrolle',['blätterteig','ei','zucker','rahm'],'Blätterteig um Röllchen backen und mit Eischneecreme füllen.',80,['Vegetarisch']],
+['Eclairs',['mehl','butter','ei','schokolade'],'Brandteig spritzen, backen, füllen und glasieren.',90,['Vegetarisch']],
+['Bienenstich',['mehl','germ','butter','honig'],'Germteig mit Honig-Mandel-Kruste backen und mit Creme füllen.',90,['Vegetarisch']],
+['Biskuitroulade',['ei','mehl','zucker','marmelade'],'Biskuit backen, mit Marmelade bestreichen und einrollen.',40,['Vegetarisch']],
+['Nussroulade',['nüsse','ei','zucker','rahm'],'Nussbiskuit backen, mit Rahm füllen und einrollen.',50,['Vegetarisch']],
+['Cremeroulade',['ei','mehl','zucker','rahm'],'Biskuit backen, mit Creme füllen und einrollen.',50,['Vegetarisch']],
+['Prinzregententorte',['ei','mehl','butter','schokolade'],'Dünne Böden backen und mit Buttercreme schichten.',180,['Vegetarisch']],
+['Herrentorte',['nüsse','ei','butter','schokolade'],'Nussböden backen und mit Schokocreme schichten.',150,['Vegetarisch']],
+['Haselnusstorte',['nüsse','ei','zucker','rahm'],'Haselnussteig backen und mit Rahm füllen.',90,['Vegetarisch']],
+['Schwarzwälder Kirschtorte',['kirschen','schokolade','rahm','ei'],'Schokobiskuit mit Kirschen und Schlagobers schichten.',120,['Vegetarisch']],
+['Topfentorte',['topfen','ei','zucker','mehl'],'Topfenmasse auf Mürbteig backen.',80,['Vegetarisch']],
+['Mohntorte',['mohn','ei','zucker','rahm'],'Mohnteig backen und mit Rahm füllen.',90,['Vegetarisch']],
+['Erdbeertorte',['erdbeeren','mehl','ei','rahm'],'Biskuitboden mit Erdbeeren und Rahm belegen.',90,['Vegetarisch']],
+['Erdbeerkuchen',['erdbeeren','mehl','ei','zucker'],'Erdbeeren auf Rührteig verteilen und backen.',60,['Vegetarisch']],
+['Marillenkuchen',['marille','mehl','ei','zucker'],'Marillen auf Rührteig verteilen und backen.',60,['Vegetarisch']],
+['Zwetschgenkuchen',['zwetschge','mehl','ei','zucker'],'Zwetschgen auf Teig verteilen und backen.',60,['Vegetarisch']],
+['Rhabarberkuchen',['rhabarber','mehl','ei','zucker'],'Rhabarber auf Rührteig verteilen und backen.',60,['Vegetarisch']],
+['Heidelbeerkuchen',['heidelbeeren','mehl','ei','zucker'],'Heidelbeeren in den Rührteig geben und backen.',60,['Vegetarisch']],
+['Birnenkuchen',['birne','mehl','ei','zucker'],'Birnen auf Rührteig verteilen und backen.',60,['Vegetarisch']],
+['Gedeckter Apfelkuchen',['apfel','mehl','butter','zucker'],'Äpfel zwischen zwei Mürbteigplatten backen.',75,['Vegetarisch']],
+['Eierlikörkuchen',['eierlikör','mehl','ei','butter'],'Rührteig mit Eierlikör backen.',60,['Vegetarisch']],
+['Mousse au Chocolat',['schokolade','ei','rahm'],'Schokolade schmelzen, Dotter und Schlagobers unterheben, kalt stellen.',30,['Vegetarisch']],
+['Crème brûlée',['rahm','ei','zucker','vanille'],'Rahm mit Dotter stocken lassen und Zucker karamellisieren.',60,['Vegetarisch']],
+['Eiskaffee',['kaffee','eis','rahm'],'Kalten Kaffee mit Eis und Schlagobers servieren.',10,['Vegetarisch']]];
+const RECIPES=[
+['Eierspeis mit Brot',['ei','brot','butter'],'Eier in Butter stocken lassen, salzen und auf Brot servieren.',10,['Vegetarisch']],
+['Palatschinken',['mehl','ei','milch'],'Dünnen Teig aus Mehl, Ei und Milch in der Pfanne ausbacken, mit Marmelade füllen.',25,['Vegetarisch']],
+['Erdäpfelgulasch',['erdäpfel','zwiebel','paprika'],'Zwiebel anrösten, Paprikapulver und Erdäpfelwürfel dazu, mit Wasser aufgießen und weich kochen.',40,['Vegetarisch','Vegan']],
+['Erdäpfelsuppe',['erdäpfel','zwiebel','suppenwürfel'],'Erdäpfel und Zwiebel in Suppe weich kochen, passieren und abschmecken.',30,['Vegetarisch','Vegan']],
+['G’röste Erdäpfel',['erdäpfel','zwiebel','ei'],'Gekochte Erdäpfel in Scheiben anrösten, Zwiebel dazu, ein Spiegelei obenauf.',30,['Vegetarisch']],
+['Spaghetti mit Paradeisersauce',['nudeln','paradeiser','zwiebel'],'Zwiebel anrösten, Paradeiser dazu, 15 Minuten köcheln, über die Nudeln geben.',25,['Vegetarisch','Vegan']],
+['Kasnocken',['mehl','ei','käse'],'Teig aus Mehl, Ei und Wasser in kochendes Wasser schaben, mit Käse und Röstzwiebeln schichten.',40,['Vegetarisch']],
+['Topfenpalatschinken',['mehl','ei','milch','topfen'],'Palatschinken backen, mit Topfen, Zucker und Ei füllen und kurz im Rohr backen.',40,['Vegetarisch']],
+['Grießkoch',['grieß','milch','zucker'],'Milch aufkochen, Grieß einrühren, kurz quellen lassen, mit Zucker und Zimt servieren.',15,['Vegetarisch']],
+['Paradeisersuppe',['paradeiser','zwiebel','suppenwürfel'],'Zwiebel anrösten, Paradeiser und Suppe dazu, kochen und pürieren.',30,['Vegetarisch','Vegan']],
+['Linsensuppe',['linsen','karotte','zwiebel'],'Zwiebel und Karotte anrösten, Linsen dazu, 25 Minuten kochen, mit Essig abschmecken.',40,['Vegetarisch','Vegan']],
+['Gemüsepfanne',['paprika','zwiebel','karotte'],'Gemüse in Streifen schneiden, in Öl anrösten und würzen.',20,['Vegetarisch','Vegan']],
+['Reis mit Gemüse',['reis','karotte','paprika'],'Reis kochen, Gemüse anrösten, alles mischen.',25,['Vegetarisch','Vegan']],
+['Haferflocken mit Banane',['haferflocken','milch','banane'],'Haferflocken mit warmer Milch übergießen, Banane in Scheiben dazu.',5,['Vegetarisch']],
+['Schinken-Käse-Toast',['toast','schinken','käse'],'Toast belegen und im Rohr überbacken.',15,['Fleisch','Schwein']],
+['Wiener Schnitzel',['schwein','mehl','ei','brösel'],'Schnitzel klopfen, in Mehl, Ei und Bröseln wenden, in Fett goldgelb herausbacken.',30,['Fleisch','Schwein']],
+['Spaghetti Carbonara',['nudeln','speck','ei'],'Speck anrösten, Nudeln kochen, mit verquirltem Ei und Käse vermengen.',20,['Fleisch','Schwein']],
+['Faschierte Laibchen',['faschiert','ei','semmel','zwiebel'],'Faschiertes mit Ei, eingeweichter Semmel und Zwiebel mischen, formen und braun braten.',35,['Fleisch','Schwein','Rind']],
+['Rindsuppe mit Nudeln',['rind','karotte','nudeln'],'Rindfleisch mit Wurzelgemüse langsam auskochen, Nudeln extra kochen und einlegen.',120,['Fleisch','Rind']],
+['Hendl mit Reis',['hendl','reis','paprika'],'Hendl würzen und anbraten, mit Paprika und Reis im Rohr oder Topf garen.',45,['Fleisch','Geflügel']],
+['Fisch mit Erdäpfeln',['fisch','erdäpfel','butter'],'Fischfilet in Butter braten, dazu gekochte Erdäpfel.',30,['Fisch']],
+['Thunfischsalat',['thunfisch','mais','zwiebel'],'Alles vermengen und mit Essig und Öl abschmecken.',10,['Fisch']],
+['Spiegelei mit Speck',['ei','speck','brot'],'Speck knusprig braten, Eier dazu schlagen und mit Brot servieren.',10,['Fleisch','Schwein']],
+['Eiernockerl',['mehl','ei','milch','butter'],'Teig aus Mehl, Ei und Milch vom Brett ins Salzwasser schaben, abseihen und in Butter schwenken.',30,['Vegetarisch']],
+['Kaiserschmarrn',['mehl','ei','milch','zucker'],'Dicken Palatschinkenteig backen, in der Pfanne zerreißen, mit Zucker bestreuen.',25,['Vegetarisch']],
+['Frittatensuppe',['mehl','ei','milch','suppenwürfel'],'Dünne Palatschinken backen, in Streifen schneiden und in heißer Suppe servieren.',25,['Vegetarisch']],
+['Grießnockerlsuppe',['grieß','ei','butter','suppenwürfel'],'Grießteig rasten lassen, Nockerl formen und in Suppe gar ziehen lassen.',35,['Vegetarisch']],
+['Milchreis',['reis','milch','zucker'],'Reis in Milch langsam weich köcheln, mit Zucker und Zimt servieren.',35,['Vegetarisch']],
+['Semmelknödel',['semmel','milch','ei','zwiebel'],'Semmelwürfel mit Milch, Ei und Zwiebel mischen, Knödel formen und im Wasser ziehen lassen.',40,['Vegetarisch']],
+['Topfenknödel',['topfen','ei','brösel','butter'],'Topfenmasse formen, in Wasser ziehen lassen und in Butterbröseln wälzen.',40,['Vegetarisch']],
+['Erdäpfelpüree',['erdäpfel','milch','butter'],'Erdäpfel weich kochen, durchpressen und mit Milch und Butter cremig rühren.',30,['Vegetarisch']],
+['Erdäpfelpuffer',['erdäpfel','ei','zwiebel','mehl'],'Erdäpfel reiben, mit Ei, Zwiebel und Mehl mischen und in der Pfanne knusprig ausbacken.',35,['Vegetarisch']],
+['Erdäpfelsalat',['erdäpfel','zwiebel','essig'],'Warme Erdäpfelscheiben mit Zwiebel, Essig, Öl und warmer Suppe marinieren.',25,['Vegetarisch','Vegan']],
+['Spinat mit Ei und Erdäpfeln',['spinat','erdäpfel','ei'],'Spinat in Zwiebel und Knoblauch dünsten, mit Erdäpfeln und Spiegelei anrichten.',30,['Vegetarisch']],
+['Schwammerlgulasch',['schwammerl','zwiebel','paprika'],'Zwiebel anrösten, Paprika und Schwammerl dazu und weich schmoren.',30,['Vegetarisch','Vegan']],
+['Zucchini-Eierspeis',['zucchini','ei','zwiebel'],'Zucchini und Zwiebel anrösten, Eier darüber stocken lassen.',20,['Vegetarisch']],
+['Krautfleckerl',['kraut','nudeln','zwiebel'],'Kraut mit Zwiebel und Zucker karamellisieren, mit Nudeln vermengen.',40,['Vegetarisch','Vegan']],
+['Karfiol überbacken',['karfiol','käse','milch'],'Karfiol bissfest kochen, mit Käse-Milch-Sauce im Rohr überbacken.',35,['Vegetarisch']],
+['Bohnensuppe',['bohnen','zwiebel','suppenwürfel'],'Zwiebel anrösten, Bohnen und Suppe dazu, 25 Minuten kochen.',40,['Vegetarisch','Vegan']],
+['Kürbissuppe',['kürbis','zwiebel','suppenwürfel'],'Kürbis und Zwiebel anrösten, mit Suppe weich kochen und pürieren.',35,['Vegetarisch','Vegan']],
+['Nudeln mit Knoblauch und Öl',['nudeln','knoblauch'],'Nudeln kochen, Knoblauch in Öl anrösten und alles vermengen.',15,['Vegetarisch','Vegan']],
+['Schinkensemmel',['semmel','schinken','butter'],'Semmel mit Butter bestreichen und mit Schinken belegen.',5,['Fleisch','Schwein']],
+['Würstel mit Semmel',['würstel','semmel'],'Würstel im heißen Wasser ziehen lassen, mit Semmel und Senf servieren.',10,['Fleisch','Schwein','Rind']],
+['Nudeln mit Schinkenrahm',['nudeln','schinken','rahm'],'Schinken anrösten, mit Rahm aufgießen, einkochen und mit Nudeln mischen.',20,['Fleisch','Schwein']],
+['Schinkenfleckerl',['nudeln','schinken','ei','topfen'],'Fleckerl mit Schinken, Ei und Topfen mischen und im Rohr backen.',40,['Fleisch','Schwein']],
+['Rindsgulasch',['rind','zwiebel','paprika'],'Viel Zwiebel anrösten, Fleisch und Paprika dazu und langsam weich schmoren.',120,['Fleisch','Rind']],
+['Hühnersuppe',['hendl','karotte','nudeln'],'Hendl mit Gemüse auskochen, Fleisch zupfen, Nudeln einlegen.',90,['Fleisch','Geflügel']],
+['Fisch mit Reis',['fisch','reis','karotte'],'Fisch in der Pfanne braten, mit Reis und Karotten servieren.',30,['Fisch']],
+['Fischstäbchen mit Püree',['fisch','erdäpfel','milch'],'Fischstäbchen im Rohr backen, dazu Erdäpfelpüree.',25,['Fisch']],
+['Thunfischnudeln',['nudeln','thunfisch','paradeiser'],'Paradeiser kurz einkochen, Thunfisch dazu, mit Nudeln mischen.',20,['Fisch']]];
+const $=s=>document.querySelector(s);
+const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
+let S={items:load('v_items',[]),log:load('v_log',[]),shop:load('v_shop',[])};
+const save=()=>{try{localStorage.setItem('v_items',JSON.stringify(S.items));localStorage.setItem('v_log',JSON.stringify(S.log));localStorage.setItem('v_shop',JSON.stringify(S.shop))}catch(e){alert('Speicher voll. Lösche Fotos oder Artikel.')}};
+let CG=load('v_cg',{lager:[],frost:[]});CG.lager=CG.lager||[];CG.frost=CG.frost||[];
+const saveCG=()=>{try{localStorage.setItem('v_cg',JSON.stringify(CG))}catch{}};
+const gl=fr=>fr?[...FG,...CG.frost]:[...GROUPS,...CG.lager];
+let addG=false;
+let tab='lager',flt='Alle',editId=null,curImg='',mon=new Date(),unlocked=false;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const days=e=>e?Math.ceil((new Date(e+'T23:59:59')-new Date())/864e5)-1:null;
+const eur=n=>(n||0).toLocaleString('de-AT',{style:'currency',currency:'EUR'});
+const fmtD=e=>e?new Date(e).toLocaleDateString('de-AT'):'';
 
-let state = load();
-let openIds = new Set();
-let statusFilter = '';
-let currentTab = 'lager';
+/* Sperre */
+async function hash(s){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('vl:'+s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch{let h=0;for(const c of 'vl:'+s)h=(h*31+c.charCodeAt(0))|0;return 'f'+h}}
+function lockInit(){const has=localStorage.getItem('v_pw');
+  if(localStorage.getItem('v_ok')&&has){$('#lock').style.display='none';unlocked=true;render();return}
+  $('#lock').style.display='flex';$('#pw').value='';$('#pw2').value='';
+  $('#pw2').style.display=has?'none':'block';
+  $('#lockHint').textContent=has?'Gib dein Passwort ein.':'Lege jetzt dein Passwort fest.';
+  $('#lockBtn').textContent=has?'Entsperren':'Passwort festlegen'}
+$('#lockBtn').onclick=async()=>{const has=localStorage.getItem('v_pw'),p=$('#pw').value;$('#lockErr').textContent='';
+  if(p.length<4){$('#lockErr').textContent='Mindestens 4 Zeichen.';return}
+  if(!has){if(p!==$('#pw2').value){$('#lockErr').textContent='Die Passwörter sind nicht gleich.';return}localStorage.setItem('v_pw',await hash(p))}
+  else if(await hash(p)!==has){$('#lockErr').textContent='Falsches Passwort.';return}
+  localStorage.setItem('v_ok','1');lockInit()};
+$('#pw').onkeydown=$('#pw2').onkeydown=e=>{if(e.key==='Enter')$('#lockBtn').click()};
+$('#lockNow').onclick=()=>{localStorage.removeItem('v_ok');unlocked=false;lockInit()};
 
-/* ---------- Daten ---------- */
-function seed(){
-  return { warnDays: 14, log: [], shop: [], items: [
-    { id: uid(), name: 'Eistee', category: 'Getränke', location: 'Keller', unit: 'Liter', batches: [
-      { id: uid(), amount: 10, expiry: '2027-09-10' },
-      { id: uid(), amount: 10, expiry: '2027-08-07' } ] },
-    { id: uid(), name: 'Nudeln', category: 'Lebensmittel', location: 'Vorratsschrank', unit: 'Packungen', min: 4, batches: [
-      { id: uid(), amount: 6, expiry: '2028-03-15' } ] },
-    { id: uid(), name: 'Glühbirnen E27', category: 'Haushalt', location: 'Abstellraum', unit: 'Stück', batches: [
-      { id: uid(), amount: 4, expiry: null } ] }
-  ]};
-}
-function normalize(s){
-  return { warnDays: s.warnDays || 14, items: s.items, log: Array.isArray(s.log) ? s.log : [], shop: Array.isArray(s.shop) ? s.shop : [] };
-}
-function load(){
-  try {
-    const s = JSON.parse(localStorage.getItem(KEY));
-    if (s && Array.isArray(s.items)) return normalize(s);
-  } catch (e) {}
-  return seed();
-}
-let warned = false;
-function save(){
-  try { localStorage.setItem(KEY, JSON.stringify(state)); }
-  catch (e) { if (!warned) { warned = true; toast('Speicher voll. Entferne Fotos oder leere den Verlauf.'); } }
-}
+/* Navigation */
+$('#nav').innerHTML=TABS.map(t=>`<button data-t="${t[0]}"><span>${t[1]}</span>${t[2]}</button>`).join('');
+$('#nav').onclick=e=>{const b=e.target.closest('button');if(b){tab=b.dataset.t;flt='Alle';addG=false;render();scrollTo(0,0)}};
 
-/* ---------- Hilfsfunktionen ---------- */
-function today(){ const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
-function parseDate(s){ const [y,m,d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
-function toISO(d){ return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
-function fmtDate(s){ return parseDate(s).toLocaleDateString('de-AT', { day:'2-digit', month:'2-digit', year:'numeric' }); }
-function fmtNum(n){ return Number(n).toLocaleString('de-DE', { maximumFractionDigits: 2 }); }
-function addMonths(s, m){
-  const d = parseDate(s), day = d.getDate();
-  d.setMonth(d.getMonth() + m);
-  if (d.getDate() !== day) d.setDate(0);
-  return toISO(d);
-}
-const expKey = b => b.expiry ? parseDate(b.expiry).getTime() : 8.64e15;
-const byExpiry = (a, b) => expKey(a) - expKey(b);
-const findItem = id => state.items.find(i => i.id === id);
+function chips(){const fr=tab==='frost',cu=fr?CG.frost:CG.lager;
+  return `<div class="chips">${['Alle','⏳ Bald ablaufend',...gl(fr)].map(g=>`<button class="chip ${flt===g?'on':''}" data-f="${esc(g)}">${esc(g)}</button>`).join('')}<button class="chip" data-a="grpAdd">+ Eigene</button></div>
+  ${addG?`<div class="inl"><input id="gNew" maxlength="24" placeholder="Name der neuen Gruppe" enterkeyhint="done"><button class="btn" id="gAdd">Hinzufügen</button></div>${cu.length?`<div class="chips">${cu.map(g=>`<button class="chip" data-a="gDel" data-g="${esc(g)}">${esc(g)} ✕</button>`).join('')}</div>`:''}`:''}`}
+function row(i,mode){const d=days(i.exp);let ex='';
+  if(i.exp)ex=d<0?`<span class="bad">abgelaufen seit ${-d} Tg.</span>`:d<=7?`<span class="warn">noch ${d} Tg.</span>`:`bis ${fmtD(i.exp)}`;
+  const low=i.qty<=i.min&&i.min>0?'<span class="warn">wenig</span>':'';
+  const meta=[`${i.qty} Stk.`,i.g?`${i.g} g`:'',i.pack?`${i.pack} pro Pkg.`:'',i.price?eur(i.price):'',ex,low,i.group].filter(Boolean).join(' · ');
+  const img=i.img?`<div class="ph"><img src="${esc(i.img)}" alt="" loading="lazy"></div>`:`<div class="ph">${esc(i.name[0]||'?').toUpperCase()}</div>`;
+  const x=d!==null&&d<0&&i.qty>0?`<button class="ib" data-a="exp" data-id="${i.id}" title="Als abgelaufen verbuchen">⚠️</button>`:'';
+  return `<div class="row">${img}<div class="info"><div class="nm">${esc(i.name)}</div><div class="mt">${meta}</div></div><div class="btns">${x}<button class="ib" data-a="use" data-id="${i.id}" title="Eins verbraucht">−</button><button class="ib" data-a="ed" data-id="${i.id}" title="Bearbeiten">✎</button><button class="ib" data-a="del" data-id="${i.id}" title="Aus der Liste entfernen">🗑</button></div></div>`}
+function list(arr,empty){return arr.length?arr.map(row).join(''):`<div class="empty">${empty}</div>`}
+const filt=a=>a.filter(i=>flt==='Alle'||(flt==='⏳ Bald ablaufend'?(i.qty>0&&i.exp&&days(i.exp)<=7):(tab==='frost'?(gl(true).includes(i.group)?i.group:'Sonstiges'):i.group)===flt));
+const byExp=(a,b)=>(a.exp||'9')<(b.exp||'9')?-1:1;
 
-function stat(expiry){
-  if (!expiry) return { key:'none', days:Infinity };
-  const days = Math.round((parseDate(expiry) - today()) / 864e5);
-  if (days < 0) return { key:'bad', days };
-  if (days <= state.warnDays) return { key:'warn', days };
-  return { key:'ok', days };
-}
-function rel(days){
-  if (days === Infinity) return 'läuft nicht ab';
-  if (days < 0) return days === -1 ? 'seit 1 Tag abgelaufen' : `seit ${-days} Tagen abgelaufen`;
-  if (days === 0) return 'läuft heute ab';
-  if (days === 1) return 'läuft morgen ab';
-  return `läuft in ${days} Tagen ab`;
-}
-const order = { bad:0, warn:1, ok:2, none:3 };
-function itemStat(item){
-  let best = { key:'none', days:Infinity };
-  for (const b of item.batches) {
-    if (!(b.amount > 0)) continue;
-    const s = stat(b.expiry);
-    if (order[s.key] < order[best.key] || (s.key === best.key && s.days < best.days)) best = { ...s, expiry:b.expiry };
-  }
-  return best;
-}
-const total = item => item.batches.reduce((a, b) => a + (Number(b.amount) || 0), 0);
-const usable = item => item.batches.reduce((a, b) => a + (b.amount > 0 && stat(b.expiry).key !== 'bad' ? Number(b.amount) : 0), 0);
-const isLow = item => item.min > 0 && usable(item) < item.min;
+function render(){if(!unlocked)return;
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
+  if(addG&&$('#gNew'))setTimeout(()=>$('#gNew')&&$('#gNew').focus(),0);
+  $('#fab').style.display=['lager','frost'].includes(tab)?'block':'none';
+  const m=$('#main'),T=TABS.find(t=>t[0]===tab)[2];
+  const total=S.items.reduce((s,i)=>s+(i.price||0)*i.qty,0);
+  $('#title').innerHTML=({lager:'Dein <em>Lager</em>',frost:'Dein <em>Tiefkühler</em>',auf:'Jetzt <em>aufbrauchen</em>',kauf:'Deine <em>Einkaufsliste</em>',stat:'Dein <em>Verbrauch</em>',rez:'Was du <em>kochen</em> kannst'})[tab];
+  $('#sub').textContent=tab==='lager'?`${S.items.filter(i=>!i.frozen).length} Artikel · Wert ${eur(total)}`:'';
+  if(tab==='lager')m.innerHTML=chips()+list(filt(S.items.filter(i=>!i.frozen)).sort(byExp),'Noch nichts im Lager. Tippe auf +.');
+  else if(tab==='frost')m.innerHTML=chips()+list(filt(S.items.filter(i=>i.frozen)).sort(byExp),'Der Tiefkühler ist leer. Tippe auf +.');
+  else if(tab==='auf'){const a=S.items.filter(i=>i.qty>0&&i.exp&&days(i.exp)<=7).sort(byExp);m.innerHTML=list(a,'Nichts läuft in den nächsten 7 Tagen ab.')}
+  else if(tab==='kauf')renderShop(m);
+  else if(tab==='stat')renderStat(m);
+  else renderRec(m)}
 
-function logAdd(type, item, amount){
-  state.log.unshift({ t: new Date().toISOString(), type, name: item.name, amount: round(amount), unit: item.unit });
-  if (state.log.length > 1000) state.log.length = 1000;
-}
-function consume(item, n){
-  let left = n, taken = 0;
-  for (const b of item.batches.filter(x => x.amount > 0).sort(byExpiry)) {
-    if (left <= 0) break;
-    const t = Math.min(b.amount, left);
-    b.amount = round(b.amount - t); left -= t; taken += t;
-  }
-  item.batches = item.batches.filter(b => b.amount > 0);
-  if (taken > 0) logAdd('verbraucht', item, taken);
-}
-function addOne(item){
-  const bs = [...item.batches].sort(byExpiry);
-  if (bs.length) { const last = bs[bs.length - 1]; last.amount = round(last.amount + 1); }
-  else item.batches.push({ id: uid(), amount: 1, expiry: null });
-  logAdd('hinzugefügt', item, 1);
-}
+function renderShop(m){const o=S.shop.filter(s=>!s.done),d=S.shop.filter(s=>s.done);
+  const miss=S.items.filter(i=>i.min>0&&i.qty<i.min&&!S.shop.some(s=>!s.done&&s.name.toLowerCase()===i.name.toLowerCase()));
+  const c=s=>`<div class="srow"><button class="chk ${s.done?'done':''}" data-a="tg" data-id="${s.id}"><span class="dot">✓</span><span class="t">${esc(s.name)}</span></button><button class="ib" style="height:auto;width:52px;border-radius:14px" data-a="sDel" data-id="${s.id}" aria-label="Entfernen">🗑</button></div>`;
+  m.innerHTML=`<div class="inl"><input id="sNew" placeholder="Neu auf die Liste…" enterkeyhint="done"><button class="btn" id="sAdd">Hinzufügen</button></div>
+  ${miss.length?`<div class="h2">Fehlt im Lager</div>${miss.map(i=>`<div class="row"><div class="info"><div class="nm">${esc(i.name)}</div><div class="mt">${i.qty} von mind. ${i.min}</div></div><button class="ib p" data-a="toShop" data-id="${i.id}">+</button></div>`).join('')}`:''}
+  <div class="h2">Offen (${o.length})</div>${o.map(c).join('')||'<div class="empty">Alles erledigt.</div>'}
+  ${d.length?`<div class="h2">Erledigt (${d.length})</div>${d.map(c).join('')}<div class="inl"><button class="btn g" id="sClr" style="width:100%">Erledigte entfernen</button></div>`:''}
+  ${o.length?`<div class="inl"><button class="btn g" id="sShare" style="width:100%">Teilen oder kopieren</button></div>`:''}`}
 
-let tt;
-function toast(msg){
-  const t = $('toast'); t.textContent = msg; t.classList.add('show');
-  clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2800);
-}
+function renderStat(m){const y=mon.getFullYear(),mo=mon.getMonth(),n=new Date(y,mo+1,0).getDate(),w=Math.ceil(n/7);
+  const u=Array(w).fill(0),x=Array(w).fill(0);let tu=0,tx=0,lost=0;
+  S.log.forEach(l=>{const d=new Date(l.t);if(d.getFullYear()===y&&d.getMonth()===mo){const k=Math.min(w-1,Math.floor((d.getDate()-1)/7));if(l.type==='used'){u[k]+=l.n;tu+=l.n}else{x[k]+=l.n;tx+=l.n;lost+=l.v||0}}});
+  const mx=Math.max(1,...u,...x);
+  m.innerHTML=`<div class="stat"><button class="ib" id="mP">‹</button><b>${mon.toLocaleDateString('de-AT',{month:'long',year:'numeric'})}</b><button class="ib" id="mN">›</button></div>
+  <div class="bars">${u.map((v,k)=>`<div class="bg"><div class="bp"><i class="u" style="height:${v/mx*100}%"></i><i class="x" style="height:${x[k]/mx*100}%"></i></div><small>Wo ${k+1}</small></div>`).join('')}</div>
+  <div class="leg"><span><b style="background:var(--ac)"></b>Verbraucht</span><span><b style="background:var(--bad)"></b>Abgelaufen</span></div>
+  <div class="kpi"><div><strong>${tu}</strong><span>verbraucht</span></div><div><strong>${tx}</strong><span>abgelaufen</span></div><div><strong>${eur(lost)}</strong><span>weggeworfen</span></div><div><strong>${tu+tx?Math.round(tu/(tu+tx)*100):0}%</strong><span>genutzt</span></div></div>
+  <div class="h2">Sicherung</div><div class="inl"><button class="btn g" id="bEx" style="flex:1">Exportieren</button><button class="btn g" id="bIm" style="flex:1">Importieren</button></div><input type="file" id="bFile" accept="application/json" style="display:none">`}
 
-/* ---------- Anzeige ---------- */
-function render(){
-  renderCounters(); renderLager(); renderSoon(); renderShop(); renderLog(); updateTabs();
-}
+let recMode='all',recTag='Alle',recDiff='Alle',recFast=false;
+function renderRec(m){const act=S.items.filter(i=>i.qty>0);
+  const hit=k=>act.filter(i=>(SYN[k]||[k]).some(x=>i.name.toLowerCase().includes(x)));
+  const soon=k=>hit(k).some(i=>i.exp&&days(i.exp)<=7);
+  let r=RECIPES.concat(EXTRA).map(([n,ing,how,min,tags])=>{const ok=ing.filter(k=>hit(k).length);return{n,ing,how,min,tags,diff:DIFF[n]||'Leicht',ok,miss:ing.filter(k=>!ok.includes(k)),urg:ok.filter(soon)}}).filter(r=>r.ok.length);
+  if(recMode==='soon')r=r.filter(x=>x.urg.length);
+  if(recTag!=='Alle')r=r.filter(x=>x.tags.includes(recTag));
+  if(recDiff!=='Alle')r=r.filter(x=>x.diff===recDiff);
+  if(recFast)r=r.filter(x=>x.min<=20);
+  r.sort((a,b)=>(recMode==='soon'?b.urg.length-a.urg.length:0)||b.ok.length/b.ing.length-a.ok.length/a.ing.length);
+  const tabs=`<div class="chips"><button class="chip ${recMode==='all'?'on':''}" data-r="all">Alle Rezepte</button><button class="chip ${recMode==='soon'?'on':''}" data-r="soon">⏳ Bald ablaufend</button></div><div class="chips">${['Alle',...RTAGS].map(t=>`<button class="chip ${recTag===t?'on':''}" data-rt="${t}">${t}</button>`).join('')}<button class="chip ${recFast?'on':''}" data-rf="1">⚡ Bis 20 Min.</button></div><div class="chips">${['Alle','Leicht','Mittel','Schwer'].map(t=>`<button class="chip ${recDiff===t?'on':''}" data-rd="${t}">${t==='Alle'?'Alle Stufen':t}</button>`).join('')}</div>`;
+  const empty=recMode==='soon'?'Gerade läuft nichts ab, das zu einem Rezept passt. Hier erscheinen Gerichte für Artikel, die in den nächsten 7 Tagen ablaufen.':'Dazu passt gerade kein Rezept. Trage Artikel wie Nudeln, Reis oder Eier ein oder ändere die Filter.';
+  m.innerHTML=tabs+(r.length?r.map(r=>`<div class="rc"><h3>${r.n}</h3><div class="mt">⏱ ca. ${r.min>=60?(r.min/60).toString().replace('.',',')+' Std.':r.min+' Min.'} · <span style="color:${({Leicht:'var(--ok)',Mittel:'#fbbf24',Schwer:'var(--bad)'})[r.diff]}">${r.diff}</span> · ${r.tags.join(', ')}</div><div class="bar"><i style="width:${r.ok.length/r.ing.length*100}%"></i></div>${r.ok.map(k=>`<span class="pill y">${r.urg.includes(k)?'⏳ ':''}${k}</span>`).join('')}${r.miss.map(k=>`<span class="pill n">${k} fehlt</span>`).join('')}${r.urg.length?`<div class="mt" style="margin-top:8px"><span class="warn" style="color:#fbbf24">Verbraucht bald ablaufendes: ${r.urg.join(', ')}</span></div>`:''}<div class="mt" style="margin-top:8px">${r.how}</div>${r.miss.length?`<button class="btn g" style="margin-top:10px;padding:8px 12px;font-size:14px" data-a="rShop" data-miss="${r.miss.join(',')}">Fehlendes auf die Einkaufsliste</button>`:'<div class="pill y" style="margin-top:8px">Kannst du jetzt kochen</div>'}</div>`).join(''):`<div class="empty">${empty}</div>`)}
 
-function renderCounters(){
-  let bad = 0, warn = 0, ok = 0;
-  for (const i of state.items) for (const b of i.batches) {
-    if (!(b.amount > 0)) continue;
-    const k = stat(b.expiry).key;
-    if (k === 'bad') bad++; else if (k === 'warn') warn++; else if (k === 'ok') ok++;
-  }
-  $('counters').innerHTML = [
-    ['bad', bad, 'abgelaufen'],
-    ['warn', warn, `laufen in ${state.warnDays} Tagen ab`],
-    ['ok', ok, 'noch lange haltbar']
-  ].map(([k,n,l]) => `<button type="button" class="counter ${k}" data-status="${k}" aria-pressed="${statusFilter === k}"><b>${n}</b><span>${l}</span></button>`).join('');
-}
-
-function renderLager(){
-  const cur = $('catFilter').value;
-  const cats = [...new Set([...CATS, ...state.items.map(i => i.category)])];
-  $('catFilter').innerHTML = '<option value="">Alle Kategorien</option>' + cats.map(c => `<option>${esc(c)}</option>`).join('');
-  $('catFilter').value = cats.includes(cur) ? cur : '';
-  $('locList').innerHTML = [...new Set(state.items.map(i => i.location).filter(Boolean))].map(l => `<option value="${esc(l)}">`).join('');
-
-  const q = $('search').value.trim().toLowerCase();
-  const cat = $('catFilter').value;
-  let items = state.items.filter(i =>
-    (!cat || i.category === cat) &&
-    (!q || (i.name + ' ' + (i.location || '')).toLowerCase().includes(q)) &&
-    (!statusFilter || i.batches.some(b => b.amount > 0 && stat(b.expiry).key === statusFilter)));
-
-  if ($('sort').value === 'name') items.sort((a,b) => a.name.localeCompare(b.name, 'de'));
-  else items.sort((a,b) => itemStat(a).days - itemStat(b).days || a.name.localeCompare(b.name, 'de'));
-
-  if (!items.length) {
-    $('list').innerHTML = `<div class="empty">${state.items.length ? 'Nichts gefunden. Ändere die Suche oder den Filter.' : 'Noch nichts im Lager. Füge deinen ersten Artikel hinzu.'}</div>`;
-    return;
-  }
-  if ($('viewSel').value === 'ort') {
-    const groups = {};
-    items.forEach(i => { const k = i.location || 'Ohne Lagerort'; (groups[k] = groups[k] || []).push(i); });
-    $('list').innerHTML = Object.keys(groups).sort((a,b) => a.localeCompare(b, 'de'))
-      .map(k => `<h2 class="grp">${esc(k)} <span class="sub">(${groups[k].length})</span></h2>` + groups[k].map(itemHtml).join('')).join('');
-  } else {
-    $('list').innerHTML = items.map(itemHtml).join('');
-  }
-}
-
-function itemHtml(item){
-  const s = itemStat(item);
-  const active = item.batches.some(b => b.amount > 0);
-  let badge;
-  if (!active) badge = '<span class="badge none">leer</span>';
-  else if (s.key === 'none') badge = '<span class="badge none">kein Ablaufdatum</span>';
-  else badge = `<span class="badge ${s.key}">${s.key === 'bad' ? 'Abgelaufen ' : 'bis '}${fmtDate(s.expiry)}</span>`;
-  const low = isLow(item) ? '<span class="badge warn">Nachkaufen</span>' : '';
-  const frozenAny = item.batches.some(b => b.frozen && b.amount > 0) ? '<span class="badge none">eingefroren</span>' : '';
-
-  const batches = [...item.batches].sort(byExpiry);
-  const rows = batches.map(b => {
-    const st = stat(b.expiry);
-    return `<div class="batch" data-item="${item.id}" data-batch="${b.id}">
-      <div class="brow">
-        <input type="number" min="0" step="any" value="${b.amount}" data-field="amount" aria-label="Menge in ${esc(item.unit)}" title="Menge 0 löscht die Charge ohne Eintrag im Verlauf">
-        <input type="date" value="${b.expiry || ''}" data-field="expiry" aria-label="Ablaufdatum">
-      </div>
-      <div class="brow2">
-        <span class="badge ${st.key}">${rel(st.days)}</span>
-        ${b.frozen ? `<span class="sub">eingefroren am ${fmtDate(b.frozen)}</span>` : ''}
-        <span class="grow"></span>
-        <button class="btn small" type="button" data-action="eaten">Verbraucht</button>
-        <button class="btn small danger" type="button" data-action="trash">Weggeworfen</button>
-      </div>
-    </div>`;
-  }).join('');
-
-  const catOpts = [...new Set([...CATS, item.category])].map(c => `<option${c === item.category ? ' selected' : ''}>${esc(c)}</option>`).join('');
-
-  return `<details class="item" data-id="${item.id}" ${openIds.has(item.id) ? 'open' : ''}>
-    <summary>
-      <div class="head">
-        ${item.photo ? `<img class="thumb" src="${item.photo}" alt="">` : ''}
-        <div><div class="name">${esc(item.name)}</div><div class="sub">${esc(item.category)}${item.location ? ', ' + esc(item.location) : ''}</div></div>
-      </div>
-      <div class="total"><b>${fmtNum(total(item))}</b> ${esc(item.unit)}</div>
-      <div class="meta">
-        ${badge}${low}${frozenAny}
-        <span class="qk">
-          <button class="btn small" type="button" data-action="minus" data-item="${item.id}" aria-label="Eins von ${esc(item.name)} entnehmen">−1</button>
-          <button class="btn small" type="button" data-action="plus" data-item="${item.id}" aria-label="Eins zu ${esc(item.name)} hinzufügen">+1</button>
-        </span>
-      </div>
-    </summary>
-    <div class="detail" data-item="${item.id}">
-      <div class="photorow">
-        ${item.photo ? `<img src="${item.photo}" alt="Foto von ${esc(item.name)}">` : ''}
-        <label class="btn small">${item.photo ? 'Foto ersetzen' : 'Foto hinzufügen'}<input type="file" accept="image/*" data-photo="${item.id}" hidden></label>
-        ${item.photo ? `<button class="btn small danger" type="button" data-action="delphoto" data-item="${item.id}">Foto entfernen</button>` : ''}
-      </div>
-      <div class="ifields">
-        <label class="fld">Mindestbestand (${esc(item.unit)})<input type="number" min="0" step="any" value="${item.min > 0 ? item.min : ''}" data-ifield="min" placeholder="kein"></label>
-        <label class="fld">Lagerort<input value="${esc(item.location || '')}" data-ifield="location" maxlength="60"></label>
-        <label class="fld">Kategorie<select data-ifield="category">${catOpts}</select></label>
-        <label class="fld">Barcode<input value="${esc(item.barcode || '')}" data-ifield="barcode" inputmode="numeric" maxlength="20"></label>
-        <label class="fld wide">Notiz<textarea data-ifield="note" maxlength="500">${esc(item.note || '')}</textarea></label>
-      </div>
-      ${rows || '<div class="sub">Keine Chargen vorhanden.</div>'}
-      <div class="addbatch" data-item="${item.id}">
-        <label>Menge<input type="number" min="0" step="any" value="1" data-new="amount"></label>
-        <label class="nd">Ablaufdatum<input type="date" data-new="expiry"></label>
-        <label class="chk"><input type="checkbox" data-new="frozen"> Eingefroren</label>
-        <label class="frz">Eingefroren am<input type="date" data-new="fdate" value="${toISO(today())}"></label>
-        <label class="frz">Haltbar (Monate)<input type="number" min="1" step="1" value="6" data-new="months"></label>
-        <button class="btn small primary" type="button" data-action="addbatch">Charge hinzufügen</button>
-      </div>
-      <div class="itemfoot"><button class="btn small danger" type="button" data-action="delitem" data-item="${item.id}">Artikel löschen</button></div>
-    </div>
-  </details>`;
-}
-
-function soonBatches(){
-  const out = [];
-  for (const i of state.items) for (const b of i.batches) {
-    if (!(b.amount > 0) || !b.expiry) continue;
-    const s = stat(b.expiry);
-    if (s.key === 'bad' || s.key === 'warn') out.push({ i, b, s });
-  }
-  return out.sort((a, c) => a.s.days - c.s.days);
-}
-function renderSoon(){
-  const list = soonBatches();
-  if (!list.length) { $('soonList').innerHTML = `<div class="empty">Nichts läuft in den nächsten ${state.warnDays} Tagen ab.</div>`; return; }
-  $('soonList').innerHTML = list.map(({ i, b, s }) => `
-    <div class="row" data-item="${i.id}" data-batch="${b.id}">
-      <div><div class="name">${esc(i.name)}</div><div class="sub">${fmtNum(b.amount)} ${esc(i.unit)}${i.location ? ', ' + esc(i.location) : ''}</div></div>
-      <div><span class="badge ${s.key}">${s.key === 'bad' ? 'Abgelaufen ' : 'bis '}${fmtDate(b.expiry)}</span><div class="sub" style="text-align:right">${rel(s.days)}</div></div>
-      <div class="acts">
-        <button class="btn small" type="button" data-action="eaten">Verbraucht</button>
-        <button class="btn small danger" type="button" data-action="trash">Weggeworfen</button>
-      </div>
-    </div>`).join('');
-}
-
-function lowItems(){
-  return state.items.filter(i => isLow(i) && !state.shop.some(s => s.itemId === i.id && !s.done));
-}
-const needText = i => `${i.name}, ${fmtNum(Math.ceil((i.min - usable(i)) * 100) / 100)} ${i.unit}`;
-function renderShop(){
-  const low = lowItems();
-  $('shopSuggest').innerHTML = low.length ? `
-    <h2>Fehlt im Lager</h2>
-    <div class="list">${low.map(i => `
-      <div class="row"><div><div class="name">${esc(i.name)}</div><div class="sub">${fmtNum(usable(i))} von mindestens ${fmtNum(i.min)} ${esc(i.unit)} vorhanden</div></div>
-      <button class="btn small primary" type="button" data-action="addlow" data-item="${i.id}">Auf die Liste</button></div>`).join('')}</div>
-    <div class="bar"><button class="btn" type="button" data-action="addall">Alle auf die Liste</button></div>` : '';
-  $('shopList').innerHTML = state.shop.length
-    ? state.shop.map(s => `<div class="shoprow ${s.done ? 'done' : ''}"><label><input type="checkbox" data-shop="${s.id}" ${s.done ? 'checked' : ''}><span>${esc(s.text)}</span></label><button class="btn small" type="button" data-action="delshop" data-shop="${s.id}">Entfernen</button></div>`).join('')
-    : '<div class="empty">Die Liste ist leer.</div>';
-}
-
-function renderLog(){
-  const since = Date.now() - 30 * 864e5;
-  const recent = state.log.filter(l => new Date(l.t).getTime() >= since);
-  const eaten = recent.filter(l => l.type === 'verbraucht').length;
-  const trashed = recent.filter(l => l.type === 'weggeworfen').length;
-  const counts = {};
-  state.log.filter(l => l.type === 'weggeworfen').forEach(l => { counts[l.name] = (counts[l.name] || 0) + 1; });
-  const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3);
-  $('logStats').innerHTML = `
-    <div class="stat"><b>${eaten}</b><span class="sub">Mal verbraucht (30 Tage)</span></div>
-    <div class="stat"><b>${trashed}</b><span class="sub">Mal weggeworfen (30 Tage)</span></div>
-    ${top.length ? `<div class="stat" style="grid-column:1 / -1"><span class="sub">Am häufigsten weggeworfen</span><div>${top.map(([n, c]) => `${esc(n)} (${c}x)`).join(', ')}</div></div>` : ''}`;
-  const cls = { 'verbraucht':'ok', 'weggeworfen':'bad', 'hinzugefügt':'none' };
-  $('logList').innerHTML = state.log.length
-    ? state.log.slice(0, 100).map(l => `<div class="logrow"><span class="badge ${cls[l.type] || 'none'}">${esc(l.type)}</span><span>${esc(l.name)}, ${fmtNum(l.amount)} ${esc(l.unit)}</span><span class="sub">${new Date(l.t).toLocaleString('de-AT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}</span></div>`).join('')
-    : '<div class="empty">Noch keine Einträge. Hier erscheint, was du verbrauchst, hinzufügst oder wegwirfst.</div>';
-}
-
-function updateTabs(){
-  const n = soonBatches().length;
-  const open = state.shop.filter(s => !s.done).length + lowItems().length;
-  $('tabSoon').textContent = n ? `Aufbrauchen (${n})` : 'Aufbrauchen';
-  $('tabShop').textContent = open ? `Einkauf (${open})` : 'Einkauf';
-}
-function switchTab(name){
-  currentTab = name;
-  for (const t of ['lager','soon','shop','log']) {
-    $('panel-' + t).hidden = t !== name;
-  }
-  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
-}
-document.querySelector('.tabs').addEventListener('click', e => {
-  const b = e.target.closest('[data-tab]'); if (b) switchTab(b.dataset.tab);
+/* Aktionen */
+document.addEventListener('click',async e=>{
+  const rt=e.target.closest('[data-rt]');if(rt){recTag=rt.dataset.rt;render();return}
+  const rd=e.target.closest('[data-rd]');if(rd){recDiff=rd.dataset.rd;render();return}
+  const rf=e.target.closest('[data-rf]');if(rf){recFast=!recFast;render();return}
+  const rb=e.target.closest('[data-r]');if(rb){recMode=rb.dataset.r;render();return}
+  const f=e.target.closest('[data-f]');if(f){flt=f.dataset.f;render();return}
+  const b=e.target.closest('[data-a]');
+  if(b){const a=b.dataset.a,it=S.items.find(i=>i.id===b.dataset.id);
+    if(a==='use'&&it&&it.qty>0){it.qty--;S.log.push({t:Date.now(),type:'used',n:1})}
+    if(a==='exp'&&it){S.log.push({t:Date.now(),type:'expired',n:it.qty,v:(it.price||0)*it.qty});it.qty=0}
+    if(a==='ed'){openDlg(it);return}
+    if(a==='del'){if(!b.dataset.sure){b.dataset.sure='1';b.textContent='Sicher?';b.style.cssText='width:auto;padding:0 10px;background:#f87171;color:#1a1230;font-size:13px;font-weight:700';return}S.items=S.items.filter(i=>i.id!==b.dataset.id)}
+    if(a==='grpAdd')addG=!addG;
+    if(a==='gDel'){const g=b.dataset.g,fr=tab==='frost',k=fr?'frost':'lager';CG[k]=CG[k].filter(x=>x!==g);saveCG();S.items.forEach(i=>{if(i.group===g&&!!i.frozen===fr)i.group='Sonstiges'});if(flt===g)flt='Alle'}
+    if(a==='sDel')S.shop=S.shop.filter(s=>s.id!==b.dataset.id);
+    if(a==='tg'){const s=S.shop.find(s=>s.id===b.dataset.id);if(s)s.done=!s.done}
+    if(a==='toShop'&&it)S.shop.push({id:uid(),name:it.name,done:false});
+    if(a==='rShop')b.dataset.miss.split(',').forEach(k=>{if(!S.shop.some(s=>!s.done&&s.name.toLowerCase()===k))S.shop.push({id:uid(),name:k[0].toUpperCase()+k.slice(1),done:false})});
+    save();render();return}
+  const id=e.target.id;
+  if(id==='gAdd'){const v=$('#gNew').value.trim(),fr=tab==='frost',k=fr?'frost':'lager';
+    if(v&&!gl(fr).some(x=>x.toLowerCase()===v.toLowerCase())){CG[k].push(v);saveCG();flt=v}addG=false;render()}
+  if(id==='sAdd'){const v=$('#sNew').value.trim();if(v){S.shop.push({id:uid(),name:v,done:false});save();render();$('#sNew').focus()}}
+  if(id==='sClr'){S.shop=S.shop.filter(s=>!s.done);save();render()}
+  if(id==='sShare'){const t='Einkauf:\n'+S.shop.filter(s=>!s.done).map(s=>'• '+s.name).join('\n');try{navigator.share?await navigator.share({text:t}):(await navigator.clipboard.writeText(t),alert('Liste kopiert.'))}catch{}}
+  if(id==='mP'){mon=new Date(mon.getFullYear(),mon.getMonth()-1,1);render()}
+  if(id==='mN'){mon=new Date(mon.getFullYear(),mon.getMonth()+1,1);render()}
+  if(id==='bEx'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({...S,cg:CG})],{type:'application/json'}));a.download='vorrat-sicherung.json';a.click()}
+  if(id==='bIm')$('#bFile').click();
 });
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='sNew')$('#sAdd').click();if(e.key==='Enter'&&e.target.id==='gNew')$('#gAdd').click()});
+document.addEventListener('change',async e=>{if(e.target.id==='bFile'){try{const d=JSON.parse(await e.target.files[0].text());if(Array.isArray(d.items)){S={items:d.items,log:d.log||[],shop:d.shop||[]};if(d.cg){CG={lager:d.cg.lager||[],frost:d.cg.frost||[]};saveCG()}save();render();alert('Sicherung geladen.')}}catch{alert('Datei nicht lesbar.')}}});
 
-/* ---------- Aktionen in Lager und Aufbrauchen ---------- */
-function onAction(e){
-  const btn = e.target.closest('[data-action]');
-  if (!btn) return;
-  e.preventDefault();
-  const act = btn.dataset.action;
-  const row = btn.closest('[data-batch]');
-  if (act === 'minus') consume(findItem(btn.dataset.item), 1);
-  else if (act === 'plus') addOne(findItem(btn.dataset.item));
-  else if (act === 'eaten' || act === 'trash') {
-    const item = findItem(row.dataset.item);
-    const b = item.batches.find(x => x.id === row.dataset.batch);
-    logAdd(act === 'eaten' ? 'verbraucht' : 'weggeworfen', item, b.amount);
-    item.batches = item.batches.filter(x => x !== b);
-  } else if (act === 'addbatch') {
-    const box = btn.closest('.addbatch'); const item = findItem(box.dataset.item);
-    const q = k => box.querySelector(`[data-new=${k}]`);
-    const amount = parseFloat(q('amount').value);
-    if (!(amount > 0)) { q('amount').focus(); return; }
-    let expiry = q('expiry').value || null, frozen = null;
-    if (q('frozen').checked) {
-      frozen = q('fdate').value || toISO(today());
-      expiry = addMonths(frozen, Math.max(1, parseInt(q('months').value, 10) || 6));
-    }
-    item.batches.push({ id: uid(), amount, expiry, frozen });
-    logAdd('hinzugefügt', item, amount);
-  } else if (act === 'delitem') {
-    const item = findItem(btn.dataset.item);
-    if (!confirm(`„${item.name}“ komplett löschen?`)) return;
-    state.items = state.items.filter(i => i.id !== item.id);
-  } else if (act === 'delphoto') {
-    delete findItem(btn.dataset.item).photo;
-  }
-  save(); render();
-}
-$('list').addEventListener('click', onAction);
-$('soonList').addEventListener('click', onAction);
+/* Automatisch sortieren */
+const GUESS=[['Haushalt',/glühbirne|leuchtmittel|lampe|batterie|putz|reiniger|spül|waschmittel|weichspüler|klopapier|toilettenpapier|küchenrolle|taschentuch|tücher|müllsack|müllbeutel|sackerl|schwamm|seife|shampoo|duschgel|zahnpasta|zahnbürste|deo|kerze|alufolie|frischhaltefolie|backpapier|filter|streichholz|zünder|glühlampe|rasier|binden|tampon|windel/],
+['Sonstiges',/katzenfutter|hundefutter|tierfutter|katzenstreu|blumenerde|dünger|werkzeug|schraube|kabel|papier|stifte/],
+['Getränke',/wasser|saft|cola|fanta|sprite|limo|almdudler|bier|wein|sekt|prosecco|schnaps|radler|spritzer|tee|kaffee|kakao|sirup|energy|mineral|sprudel|getränk/]];
+const FROZEN=/tiefkühl|fischstäbchen|pommes|eiscreme|speiseeis|\beis\b|\btk\b|tk-|gefroren/;
+function guess(n){n=n.toLowerCase();const g=GUESS.find(x=>x[1].test(n));return{group:g?g[0]:'Lebensmittel',frozen:FROZEN.test(n)}}
+const FGUESS=[['Fisch',/fisch|lachs|garnele|forelle|thunfisch|scampi|calamari|meeresfrüchte/],['Fleisch',/fleisch|hendl|huhn|hühner|geflügel|schnitzel|burger|wurst|würstel|speck|schinken|faschiert|hack|steak|cordon|nuggets|braten|gulasch|leberkäs/],['Gemüse',/gemüse|spinat|erbsen|brokkoli|karfiol|blumenkohl|mais|beeren|obst|bohnen|fisolen|kräuter|suppengrün|karotten|paprika|zwiebel/],['Eis & Süßes',/\beis\b|eiscreme|speiseeis|kuchen|torte|dessert|sorbet|waffel/],['Fertiggerichte',/pizza|pommes|lasagne|fertig|knödel|strudel|croissant|brot|semmel|weckerl|teig|nockerl|gnocchi|ravioli|suppe|menü|auflauf/]];
+function fguess(n){n=n.toLowerCase();const g=FGUESS.find(x=>x[1].test(n));return g?g[0]:'Sonstiges'}
+let gT=false,fT=false;
+function setGroups(fr,val){const L=gl(fr);$('#fGrp').innerHTML=L.map(g=>`<option>${g}</option>`).join('');$('#fGrp').value=L.includes(val)?val:(fr?'Sonstiges':'Lebensmittel')}
+function autoSort(){if(editId)return;const n=$('#fName').value,g=guess(n);
+  const fr=fT?$('#fFr').checked:(g.frozen||tab==='frost');if(!fT)$('#fFr').checked=fr;
+  setGroups(fr,gT?$('#fGrp').value:(fr?fguess(n):g.group))}
+$('#fName').oninput=autoSort;$('#fGrp').onchange=()=>gT=true;
+$('#fFr').onchange=()=>{fT=true;gT=false;if(editId)setGroups($('#fFr').checked,$('#fGrp').value);else autoSort()};
 
-$('list').addEventListener('change', async e => {
-  const t = e.target;
-  if (t.dataset.new === 'frozen') { t.closest('.addbatch').classList.toggle('isfrozen', t.checked); return; }
-  if (t.dataset.photo) {
-    const file = t.files[0]; if (!file) return;
-    try { findItem(t.dataset.photo).photo = await resizeImage(file); save(); render(); }
-    catch (err) { toast('Das Foto konnte nicht gelesen werden.'); }
-    return;
-  }
-  if (t.dataset.ifield) {
-    const item = findItem(t.closest('.detail').dataset.item);
-    const f = t.dataset.ifield;
-    item[f] = f === 'min' ? Math.max(0, parseFloat(t.value) || 0) : t.value.trim();
-    save(); render(); return;
-  }
-  const f = t.dataset.field;
-  if (!f) return;
-  const rowEl = t.closest('.batch');
-  const item = findItem(rowEl.dataset.item);
-  const batch = item.batches.find(b => b.id === rowEl.dataset.batch);
-  if (f === 'amount') {
-    batch.amount = Math.max(0, parseFloat(t.value) || 0);
-    if (batch.amount === 0) item.batches = item.batches.filter(b => b !== batch);
-  }
-  if (f === 'expiry') { batch.expiry = t.value || null; batch.frozen = null; }
-  save(); render();
-});
-$('list').addEventListener('toggle', e => {
-  const d = e.target; if (!d.matches('details.item')) return;
-  d.open ? openIds.add(d.dataset.id) : openIds.delete(d.dataset.id);
-}, true);
-
-function resizeImage(file, max = 320){
-  return new Promise((res, rej) => {
-    const img = new Image(), url = URL.createObjectURL(file);
-    img.onload = () => {
-      const r = Math.min(1, max / Math.max(img.width, img.height));
-      const c = document.createElement('canvas');
-      c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
-      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-      URL.revokeObjectURL(url);
-      res(c.toDataURL('image/jpeg', .72));
-    };
-    img.onerror = rej;
-    img.src = url;
-  });
-}
-
-$('counters').addEventListener('click', e => {
-  const b = e.target.closest('[data-status]'); if (!b) return;
-  statusFilter = statusFilter === b.dataset.status ? '' : b.dataset.status;
-  render();
-});
-['search','catFilter','sort','viewSel'].forEach(id => $(id).addEventListener('input', render));
-
-$('warnDays').value = String(state.warnDays);
-$('warnDays').addEventListener('change', e => { state.warnDays = Number(e.target.value); save(); render(); });
-
-/* ---------- Einkauf ---------- */
-function addShop(text, itemId){
-  state.shop.push({ id: uid(), text, itemId: itemId || null, done: false });
-}
-$('panel-shop').addEventListener('click', e => {
-  const btn = e.target.closest('[data-action]'); if (!btn) return;
-  const act = btn.dataset.action;
-  if (act === 'addlow') { const i = findItem(btn.dataset.item); addShop(needText(i), i.id); }
-  else if (act === 'addall') lowItems().forEach(i => addShop(needText(i), i.id));
-  else if (act === 'delshop') state.shop = state.shop.filter(s => s.id !== btn.dataset.shop);
-  save(); render();
-});
-$('panel-shop').addEventListener('change', e => {
-  const id = e.target.dataset.shop; if (!id) return;
-  const s = state.shop.find(x => x.id === id); s.done = e.target.checked;
-  save(); render();
-});
-$('shopForm').addEventListener('submit', e => {
-  e.preventDefault();
-  const text = $('shopText').value.trim(); if (!text) return;
-  addShop(text); $('shopText').value = ''; save(); render();
-});
-$('clearDoneBtn').addEventListener('click', () => { state.shop = state.shop.filter(s => !s.done); save(); render(); });
-$('shareBtn').addEventListener('click', async () => {
-  const open = state.shop.filter(s => !s.done);
-  if (!open.length) { toast('Die Liste ist leer.'); return; }
-  const text = 'Einkaufsliste\n' + open.map(s => '- ' + s.text).join('\n');
-  try {
-    if (navigator.share) { await navigator.share({ title: 'Einkaufsliste', text }); return; }
-    await navigator.clipboard.writeText(text); toast('In die Zwischenablage kopiert.');
-  } catch (err) { if (err.name !== 'AbortError') toast('Kopieren ist hier nicht möglich.'); }
-});
-
-/* ---------- Verlauf ---------- */
-$('clearLogBtn').addEventListener('click', () => {
-  if (!confirm('Den ganzen Verlauf löschen?')) return;
-  state.log = []; save(); render();
-});
-
-/* ---------- Artikel hinzufügen ---------- */
-$('fCat').innerHTML = CATS.map(c => `<option>${c}</option>`).join('');
-function syncFrozen(){
-  const f = $('fFrozen').checked;
-  $('fFrozenWrap').hidden = !f; $('fDateWrap').hidden = f;
-}
-$('fFrozen').addEventListener('change', syncFrozen);
-function openAddDialog(code){
-  $('itemForm').reset();
-  $('fFDate').value = toISO(today());
-  $('fBarcode').value = code || '';
-  syncFrozen();
-  $('dlg').showModal();
-  $('fName').focus();
-}
-$('addItemBtn').addEventListener('click', () => openAddDialog(''));
-$('cancelBtn').addEventListener('click', () => $('dlg').close());
-
-async function lookupBarcode(code){
-  try {
-    const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json?fields=product_name,brands`);
-    const j = await r.json();
-    if (j.status === 1 && j.product && j.product.product_name) {
-      const brand = (j.product.brands || '').split(',')[0].trim();
-      return j.product.product_name + (brand ? ` (${brand})` : '');
-    }
-  } catch (e) {}
-  return null;
-}
-async function fillFromBarcode(){
-  const code = $('fBarcode').value.trim();
-  if (!code) { $('fBarcode').focus(); return; }
-  const name = await lookupBarcode(code);
-  if (name) { if (!$('fName').value.trim()) $('fName').value = name; toast('Name gefunden.'); }
-  else toast('Zu dieser Nummer wurde nichts gefunden. Trag den Namen selbst ein.');
-}
-$('fLookup').addEventListener('click', fillFromBarcode);
-
-$('itemForm').addEventListener('submit', e => {
-  e.preventDefault();
-  const name = $('fName').value.trim();
-  const amount = parseFloat($('fAmount').value);
-  if (!name || !(amount >= 0)) return;
-  let expiry = $('fDate').value || null, frozen = null;
-  if ($('fFrozen').checked) {
-    frozen = $('fFDate').value || toISO(today());
-    expiry = addMonths(frozen, Math.max(1, parseInt($('fMonths').value, 10) || 6));
-  }
-  const batch = { id: uid(), amount, expiry, frozen };
-  const barcode = $('fBarcode').value.trim();
-  const min = Math.max(0, parseFloat($('fMin').value) || 0);
-  let item = (barcode && state.items.find(i => i.barcode === barcode)) || state.items.find(i => i.name.toLowerCase() === name.toLowerCase());
-  if (item) {
-    if (amount > 0) item.batches.push(batch);
-    if (barcode && !item.barcode) item.barcode = barcode;
-    if (min && !item.min) item.min = min;
-  } else {
-    item = { id: uid(), name, category: $('fCat').value, location: $('fLoc').value.trim(), unit: $('fUnit').value.trim() || 'Stück', min, barcode, batches: amount > 0 ? [batch] : [] };
-    state.items.push(item);
-  }
-  if (amount > 0) logAdd('hinzugefügt', item, amount);
-  openIds.add(item.id);
-  save(); $('dlg').close(); switchTab('lager'); render();
-});
-
-/* ---------- Barcode scannen ---------- */
-let scanStream = null, scanTimer = null;
-function stopScan(){
-  clearInterval(scanTimer); scanTimer = null;
-  if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
-  $('video').srcObject = null;
-}
-function closeScan(){ stopScan(); if ($('scanDlg').open) $('scanDlg').close(); }
-async function openScan(){
-  $('scanCode').value = ''; $('scanMsg').textContent = ''; $('video').hidden = true;
-  $('scanDlg').showModal();
-  if (!('BarcodeDetector' in window) || !navigator.mediaDevices) {
-    $('scanMsg').textContent = 'Dieser Browser kann Strichcodes nicht selbst lesen (zum Beispiel auf dem iPhone). Tippe die Nummer unter dem Strichcode ein.';
-    return;
-  }
-  try {
-    const det = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128'] });
-    scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-    const v = $('video'); v.srcObject = scanStream; v.hidden = false; await v.play();
-    $('scanMsg').textContent = 'Halte den Strichcode ruhig vor die Kamera.';
-    scanTimer = setInterval(async () => {
-      try {
-        const r = await det.detect(v);
-        if (r.length && scanStream) handleCode(r[0].rawValue);
-      } catch (err) {}
-    }, 400);
-  } catch (err) {
-    $('video').hidden = true;
-    $('scanMsg').textContent = 'Die Kamera ist nicht verfügbar. Erlaube den Zugriff oder tippe die Nummer ein.';
-  }
-}
-async function handleCode(raw){
-  const code = String(raw).trim(); if (!code) return;
-  closeScan();
-  const item = state.items.find(i => i.barcode === code);
-  if (item) {
-    openIds.add(item.id); switchTab('lager'); render();
-    const el = document.querySelector(`details[data-id="${item.id}"]`);
-    if (el) el.scrollIntoView({ block: 'center' });
-    toast('Gefunden: ' + item.name);
-    return;
-  }
-  openAddDialog(code);
-  const name = await lookupBarcode(code);
-  if (name && !$('fName').value.trim()) $('fName').value = name;
-}
-$('scanBtn').addEventListener('click', openScan);
-$('scanClose').addEventListener('click', closeScan);
-$('scanDlg').addEventListener('close', stopScan);
-$('scanForm').addEventListener('submit', e => { e.preventDefault(); handleCode($('scanCode').value); });
-
-/* ---------- Export, Import, Kalender, Druck ---------- */
-function download(name, type, content){
-  const blob = new Blob([content], { type });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = name;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-}
-$('exportBtn').addEventListener('click', () => download('vorratslager-' + toISO(today()) + '.json', 'application/json', JSON.stringify(state, null, 2)));
-$('importBtn').addEventListener('click', () => $('importFile').click());
-$('importFile').addEventListener('change', async e => {
-  const file = e.target.files[0]; if (!file) return;
-  try {
-    const s = JSON.parse(await file.text());
-    if (!s || !Array.isArray(s.items)) throw new Error();
-    if (!confirm('Die aktuellen Daten werden durch die Datei ersetzt. Fortfahren?')) { e.target.value = ''; return; }
-    state = normalize(s);
-    $('warnDays').value = String(state.warnDays);
-    save(); render();
-  } catch (err) { alert('Die Datei konnte nicht gelesen werden. Wähle eine Export-Datei aus dem Vorratslager.'); }
-  e.target.value = '';
-});
-
-const icsEsc = s => String(s).replace(/[\\;,]/g, m => '\\' + m).replace(/\n/g, '\\n');
-$('icsBtn').addEventListener('click', () => {
-  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
-  const L = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Vorratslager//DE', 'CALSCALE:GREGORIAN'];
-  let n = 0;
-  for (const i of state.items) for (const b of i.batches) {
-    if (!(b.amount > 0) || !b.expiry || stat(b.expiry).days < 0) continue;
-    n++;
-    const d = parseDate(b.expiry), next = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1);
-    const title = `Läuft ab: ${i.name} (${fmtNum(b.amount)} ${i.unit})`;
-    L.push('BEGIN:VEVENT', `UID:${b.id}@vorratslager`, `DTSTAMP:${stamp}`,
-      `DTSTART;VALUE=DATE:${b.expiry.replace(/-/g, '')}`, `DTEND;VALUE=DATE:${toISO(next).replace(/-/g, '')}`,
-      `SUMMARY:${icsEsc(title)}`,
-      'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${icsEsc(title)}`, 'TRIGGER:-PT15H', 'END:VALARM',
-      'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${icsEsc(title)}`, 'TRIGGER:-P6DT15H', 'END:VALARM',
-      'END:VEVENT');
-  }
-  if (!n) { toast('Es gibt keine Chargen mit einem Ablaufdatum in der Zukunft.'); return; }
-  L.push('END:VCALENDAR');
-  download('vorratslager-ablauf.ics', 'text/calendar', L.join('\r\n'));
-  toast('Öffne die Datei, um die Erinnerungen in deinen Kalender zu übernehmen.');
-});
-
-function buildPrint(){
-  const items = [...state.items].sort((a, b) => (a.location || '').localeCompare(b.location || '', 'de') || a.name.localeCompare(b.name, 'de'));
-  const rows = items.map(i => {
-    const bs = i.batches.filter(b => b.amount > 0).sort(byExpiry);
-    return `<tr><td>${esc(i.name)}</td><td>${esc(i.location || '')}</td><td>${fmtNum(total(i))} ${esc(i.unit)}</td><td>${bs.map(b => `${fmtNum(b.amount)} bis ${b.expiry ? fmtDate(b.expiry) : 'ohne Datum'}`).join('<br>')}</td></tr>`;
-  }).join('');
-  $('printArea').innerHTML = `<h1>Vorratslager</h1><p>Stand: ${new Date().toLocaleDateString('de-AT')}</p><table><thead><tr><th>Artikel</th><th>Lagerort</th><th>Menge</th><th>Chargen</th></tr></thead><tbody>${rows}</tbody></table>`;
-}
-window.addEventListener('beforeprint', buildPrint);
-$('printBtn').addEventListener('click', () => { buildPrint(); window.print(); });
-
-/* ---------- Start ---------- */
-render();
-if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
-}
+/* Artikel-Dialog */
+$('#fab').onclick=()=>openDlg();
+function openDlg(it){editId=it?it.id:null;curImg=it?.img||'';gT=fT=!!it;
+  $('#dT').textContent=it?'Artikel bearbeiten':'Neuer Artikel';
+  $('#fName').value=it?.name||'';$('#fBc').value=it?.bc||'';$('#fQty').value=it?.qty??1;$('#fMin').value=it?.min??1;
+  $('#fExp').value=it?.exp||'';$('#fPrice').value=it?.price||'';$('#fGram').value=it?.g||'';$('#fPack').value=it?.pack||'';
+  $('#fFr').checked=it?it.frozen:tab==='frost';setGroups($('#fFr').checked,it?.group);$('#fImg').value='';$('#fDel').style.display=it?'block':'none';delete $('#fDel').dataset.sure;$('#fDel').textContent='Artikel löschen';$('#fDel').style.background='';$('#fDel').style.color='var(--bad)';$('#dlg').showModal()}
+$('#fImg').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas'),s=Math.min(1,200/Math.max(im.width,im.height));c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);curImg=c.toDataURL('image/jpeg',.7)};im.src=r.result};r.readAsDataURL(f)};
+$('#fLook').onclick=async()=>{const bc=$('#fBc').value.trim();if(!bc)return;$('#fLook').textContent='…';
+  try{const r=await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(bc)}.json?fields=product_name,image_front_small_url`);const j=await r.json();
+    if(j.status===1){if(j.product.product_name&&!$('#fName').value)$('#fName').value=j.product.product_name;if(j.product.image_front_small_url)curImg=j.product.image_front_small_url}else alert('Kein Produkt zu diesem Barcode gefunden.')}
+  catch{alert('Keine Verbindung zu Open Food Facts.')}autoSort();$('#fLook').textContent='Suchen'};
+$('#f').onsubmit=e=>e.preventDefault();
+$('#fSave').onclick=()=>{
+  const o={name:$('#fName').value.trim(),bc:$('#fBc').value.trim(),qty:+$('#fQty').value||0,min:+$('#fMin').value||0,exp:$('#fExp').value,price:+$('#fPrice').value||0,g:+$('#fGram').value||0,pack:+$('#fPack').value||0,group:$('#fGrp').value,frozen:$('#fFr').checked,img:curImg};
+  if(!o.name){$('#fName').focus();return}if(editId)Object.assign(S.items.find(i=>i.id===editId),o);else S.items.push({id:uid(),...o});
+  if(!editId){tab=o.frozen?'frost':'lager';flt='Alle'}save();$('#dlg').close();render()};
+$('#fCancel').onclick=()=>$('#dlg').close();
+$('#fDel').onclick=()=>{const b=$('#fDel');
+  if(!b.dataset.sure){b.dataset.sure='1';b.textContent='Wirklich löschen? Nochmal tippen';b.style.background='#f87171';b.style.color='#1a1230';return}
+  S.items=S.items.filter(i=>i.id!==editId);save();$('#dlg').close();render()};
+/* Titel antippen: Video abspielen, Lautstärke 100 */
+let ytP=null,ytLoading=false;
+function ytStart(p){try{p.unMute();p.setVolume(100);p.playVideo()}catch{}}
+$('#title').onclick=()=>{
+  if(ytP&&ytP.getPlayerState){ytP.getPlayerState()===1?ytP.pauseVideo():ytStart(ytP);return}
+  if(ytLoading)return;ytLoading=true;
+  const mk=()=>{ytP=new YT.Player('yt',{width:'200',height:'200',videoId:'gboz4HSgV4U',playerVars:{playsinline:1,controls:0},events:{onReady:e=>ytStart(e.target)}})};
+  if(window.YT&&YT.Player)mk();
+  else{window.onYouTubeIframeAPIReady=mk;const sc=document.createElement('script');sc.src='https://www.youtube.com/iframe_api';sc.onerror=()=>{ytLoading=false};document.head.appendChild(sc)}};
+lockInit();
+if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
 </body>
 </html>
