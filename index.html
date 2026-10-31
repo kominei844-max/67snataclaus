@@ -105,13 +105,13 @@ dialog label{display:block;font-size:13px;color:var(--mu);margin:10px 0 4px}
   <div class="ic">🔒</div>
   <h1 style="margin:0">Dein <em>Vorrat</em></h1>
   <p class="sub" id="lockHint" style="margin:0"></p>
-  <input id="pw" type="password" placeholder="Passwort" autocomplete="current-password">
+  <input id="pw" type="password" inputmode="numeric" placeholder="Passwort" autocomplete="current-password">
   <input id="pw2" type="password" placeholder="Passwort wiederholen" style="display:none" autocomplete="new-password">
   <div class="err" id="lockErr"></div>
   <button class="btn" id="lockBtn">Entsperren</button>
 </div>
 
-<div class="top"><div><h1 id="title"></h1><p class="sub" id="sub"></p></div><button class="btn g" id="lockNow">Sperren</button></div>
+<div class="top"><div><h1 id="title"></h1><p class="sub" id="sub"></p><p class="sub" id="syn" style="font-size:12px;margin-top:-8px"></p></div><button class="btn g" id="lockNow">Sperren</button></div>
 <main id="main"></main>
 <button class="add" id="fab" aria-label="Artikel hinzufügen">+</button>
 <nav id="nav"></nav>
@@ -138,6 +138,10 @@ dialog label{display:block;font-size:13px;color:var(--mu);margin:10px 0 4px}
 </form></dialog>
 
 <script>
+/* Fehleranzeige: zeigt JavaScript-Fehler sichtbar an, damit man sie melden kann */
+function showErr(m){let d=document.getElementById('errBar');if(!d){d=document.createElement('div');d.id='errBar';d.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:99;background:#f87171;color:#1a1230;padding:10px 12px;border-radius:12px;font-size:13px;font-weight:700';d.onclick=()=>d.remove();document.body.appendChild(d)}d.textContent='Fehler: '+m+' (antippen zum Schließen)'}
+addEventListener('error',e=>showErr((e.message||'unbekannt')+' – Zeile '+e.lineno));
+addEventListener('unhandledrejection',e=>showErr(String(e.reason&&e.reason.message||e.reason)));
 const GROUPS=['Lebensmittel','Getränke','Haushalt','Sonstiges'];
 const FG=['Fisch','Fleisch','Gemüse','Fertiggerichte','Eis & Süßes','Sonstiges'];
 const TABS=[['lager','📦','Lager'],['frost','❄️','Tiefkühl'],['auf','⏳','Aufbrauchen'],['kauf','🛒','Einkauf'],['stat','📊','Statistik'],['rez','🍳','Rezepte']];
@@ -469,9 +473,11 @@ const RECIPES=[
 const $=s=>document.querySelector(s);
 const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}};
 let S={items:load('v_items',[]),log:load('v_log',[]),shop:load('v_shop',[])};
-const save=()=>{try{localStorage.setItem('v_items',JSON.stringify(S.items));localStorage.setItem('v_log',JSON.stringify(S.log));localStorage.setItem('v_shop',JSON.stringify(S.shop))}catch(e){alert('Speicher voll. Lösche Fotos oder Artikel.')}};
+const saveRaw=()=>{try{localStorage.setItem('v_items',JSON.stringify(S.items));localStorage.setItem('v_log',JSON.stringify(S.log));localStorage.setItem('v_shop',JSON.stringify(S.shop))}catch(e){alert('Speicher voll. Lösche Fotos oder Artikel.')}};
+const save=()=>{saveRaw();stamp()};
 let CG=load('v_cg',{lager:[],frost:[]});CG.lager=CG.lager||[];CG.frost=CG.frost||[];
 const saveCG=()=>{try{localStorage.setItem('v_cg',JSON.stringify(CG))}catch{}};
+
 const gl=fr=>fr?[...FG,...CG.frost]:[...GROUPS,...CG.lager];
 let addG=false;
 let tab='lager',flt='Alle',editId=null,curImg='',mon=new Date(),unlocked=false;
@@ -482,17 +488,13 @@ const eur=n=>(n||0).toLocaleString('de-AT',{style:'currency',currency:'EUR'});
 const fmtD=e=>e?new Date(e).toLocaleDateString('de-AT'):'';
 
 /* Sperre */
-async function hash(s){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('vl:'+s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch{let h=0;for(const c of 'vl:'+s)h=(h*31+c.charCodeAt(0))|0;return 'f'+h}}
-function lockInit(){const has=localStorage.getItem('v_pw');
-  if(localStorage.getItem('v_ok')&&has){$('#lock').style.display='none';unlocked=true;render();return}
-  $('#lock').style.display='flex';$('#pw').value='';$('#pw2').value='';
-  $('#pw2').style.display=has?'none':'block';
-  $('#lockHint').textContent=has?'Gib dein Passwort ein.':'Lege jetzt dein Passwort fest.';
-  $('#lockBtn').textContent=has?'Entsperren':'Passwort festlegen'}
-$('#lockBtn').onclick=async()=>{const has=localStorage.getItem('v_pw'),p=$('#pw').value;$('#lockErr').textContent='';
-  if(p.length<4){$('#lockErr').textContent='Mindestens 4 Zeichen.';return}
-  if(!has){if(p!==$('#pw2').value){$('#lockErr').textContent='Die Passwörter sind nicht gleich.';return}localStorage.setItem('v_pw',await hash(p))}
-  else if(await hash(p)!==has){$('#lockErr').textContent='Falsches Passwort.';return}
+const PW='6767';
+function lockInit(){
+  if(localStorage.getItem('v_ok')){$('#lock').style.display='none';unlocked=true;render();if(typeof syncNow==='function')syncNow();return}
+  $('#lock').style.display='flex';$('#pw').value='';$('#pw2').style.display='none';
+  $('#lockHint').textContent='Gib das Passwort ein.';$('#lockBtn').textContent='Entsperren'}
+$('#lockBtn').onclick=()=>{$('#lockErr').textContent='';
+  if($('#pw').value!==PW){$('#lockErr').textContent='Falsches Passwort.';return}
   localStorage.setItem('v_ok','1');lockInit()};
 $('#pw').onkeydown=$('#pw2').onkeydown=e=>{if(e.key==='Enter')$('#lockBtn').click()};
 $('#lockNow').onclick=()=>{localStorage.removeItem('v_ok');unlocked=false;lockInit()};
@@ -577,7 +579,7 @@ document.addEventListener('click',async e=>{
     if(a==='ed'){openDlg(it);return}
     if(a==='del'){if(!b.dataset.sure){b.dataset.sure='1';b.textContent='Sicher?';b.style.cssText='width:auto;padding:0 10px;background:#f87171;color:#1a1230;font-size:13px;font-weight:700';return}S.items=S.items.filter(i=>i.id!==b.dataset.id)}
     if(a==='grpAdd')addG=!addG;
-    if(a==='gDel'){const g=b.dataset.g,fr=tab==='frost',k=fr?'frost':'lager';CG[k]=CG[k].filter(x=>x!==g);saveCG();S.items.forEach(i=>{if(i.group===g&&!!i.frozen===fr)i.group='Sonstiges'});if(flt===g)flt='Alle'}
+    if(a==='gDel'){const g=b.dataset.g,fr=tab==='frost',k=fr?'frost':'lager';CG[k]=CG[k].filter(x=>x!==g);saveCG();cgChanged();S.items.forEach(i=>{if(i.group===g&&!!i.frozen===fr)i.group='Sonstiges'});if(flt===g)flt='Alle'}
     if(a==='sDel')S.shop=S.shop.filter(s=>s.id!==b.dataset.id);
     if(a==='tg'){const s=S.shop.find(s=>s.id===b.dataset.id);if(s)s.done=!s.done}
     if(a==='toShop'&&it)S.shop.push({id:uid(),name:it.name,done:false});
@@ -585,8 +587,8 @@ document.addEventListener('click',async e=>{
     save();render();return}
   const id=e.target.id;
   if(id==='gAdd'){const v=$('#gNew').value.trim(),fr=tab==='frost',k=fr?'frost':'lager';
-    if(v&&!gl(fr).some(x=>x.toLowerCase()===v.toLowerCase())){CG[k].push(v);saveCG();flt=v}addG=false;render()}
-  if(id==='sAdd'){const v=$('#sNew').value.trim();if(v){S.shop.push({id:uid(),name:v,done:false});save();render();$('#sNew').focus()}}
+    if(v&&!gl(fr).some(x=>x.toLowerCase()===v.toLowerCase())){CG[k].push(v);saveCG();cgChanged();flt=v}addG=false;render()}
+  if(id==='sAdd'){const v=$('#sNew').value.trim();if(!v){$('#sNew').focus();return}try{S.shop.push({id:uid(),name:v,done:false});save()}catch(err){showErr('Speichern: '+err.message)}render();const n=$('#sNew');if(n)n.focus()}
   if(id==='sClr'){S.shop=S.shop.filter(s=>!s.done);save();render()}
   if(id==='sShare'){const t='Einkauf:\n'+S.shop.filter(s=>!s.done).map(s=>'• '+s.name).join('\n');try{navigator.share?await navigator.share({text:t}):(await navigator.clipboard.writeText(t),alert('Liste kopiert.'))}catch{}}
   if(id==='mP'){mon=new Date(mon.getFullYear(),mon.getMonth()-1,1);render()}
@@ -594,8 +596,10 @@ document.addEventListener('click',async e=>{
   if(id==='bEx'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({...S,cg:CG})],{type:'application/json'}));a.download='vorrat-sicherung.json';a.click()}
   if(id==='bIm')$('#bFile').click();
 });
+/* Hinzufügen-Buttons: Eingabefeld bleibt fokussiert, damit der Tipp bei schließender Tastatur nicht verloren geht */
+document.addEventListener('mousedown',e=>{if(e.target.id==='sAdd'||e.target.id==='gAdd')e.preventDefault()});
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='sNew')$('#sAdd').click();if(e.key==='Enter'&&e.target.id==='gNew')$('#gAdd').click()});
-document.addEventListener('change',async e=>{if(e.target.id==='bFile'){try{const d=JSON.parse(await e.target.files[0].text());if(Array.isArray(d.items)){S={items:d.items,log:d.log||[],shop:d.shop||[]};if(d.cg){CG={lager:d.cg.lager||[],frost:d.cg.frost||[]};saveCG()}save();render();alert('Sicherung geladen.')}}catch{alert('Datei nicht lesbar.')}}});
+document.addEventListener('change',async e=>{if(e.target.id==='bFile'){try{const d=JSON.parse(await e.target.files[0].text());if(Array.isArray(d.items)){S={items:d.items,log:d.log||[],shop:d.shop||[]};if(d.cg){CG={lager:d.cg.lager||[],frost:d.cg.frost||[]};saveCG();cgChanged()}save();render();alert('Sicherung geladen.')}}catch{alert('Datei nicht lesbar.')}}});
 
 /* Automatisch sortieren */
 const GUESS=[['Haushalt',/glühbirne|leuchtmittel|lampe|batterie|putz|reiniger|spül|waschmittel|weichspüler|klopapier|toilettenpapier|küchenrolle|taschentuch|tücher|müllsack|müllbeutel|sackerl|schwamm|seife|shampoo|duschgel|zahnpasta|zahnbürste|deo|kerze|alufolie|frischhaltefolie|backpapier|filter|streichholz|zünder|glühlampe|rasier|binden|tampon|windel/],
@@ -647,6 +651,51 @@ $('#title').onclick=()=>{
   const mk=()=>{ytP=new YT.Player('yt',{width:'100%',height:'100%',videoId:'gboz4HSgV4U',playerVars:{playsinline:1,rel:0},events:{onReady:e=>ytStart(e.target)}})};
   if(window.YT&&YT.Player)mk();
   else{window.onYouTubeIframeAPIReady=mk;const sc=document.createElement('script');sc.src='https://www.youtube.com/iframe_api';sc.onerror=()=>{ytLoading=false;ytClose()};document.head.appendChild(sc)}};
+/*SYNC*/
+/* Synchronisation über Firebase Realtime Database (aus, solange SYNC_URL leer ist) */
+const SYNC_URL='';  // z. B. 'https://dein-projekt-default-rtdb.europe-west1.firebasedatabase.app'
+const SYNC_ROOT=SYNC_URL?SYNC_URL.replace(/\/+$/,'')+'/vorrat':'';
+let SNAP=load('v_snap',{items:{},shop:{}}),TOMB=load('v_tomb',{items:{},shop:{}}),DIRTY=load('v_dirty',{}),CGU=load('v_cgu',0);
+let pushing=false,pushT=null,pendingR=false;
+const sj=o=>JSON.stringify(Object.keys(o).filter(k=>k!=='u').sort().map(k=>[k,o[k]]));
+function persistSync(){try{localStorage.setItem('v_snap',JSON.stringify(SNAP));localStorage.setItem('v_tomb',JSON.stringify(TOMB));localStorage.setItem('v_dirty',JSON.stringify(DIRTY));localStorage.setItem('v_cgu',JSON.stringify(CGU))}catch{}}
+function stamp(){if(!SYNC_ROOT)return;const now=Date.now();
+  for(const k of ['items','shop']){const cur={};
+    S[k].forEach(o=>{cur[o.id]=1;const j=sj(o);if(SNAP[k][o.id]!==j){o.u=now;SNAP[k][o.id]=j;DIRTY[k+'/'+o.id]=Math.random();delete TOMB[k][o.id]}});
+    Object.keys(SNAP[k]).forEach(id=>{if(!cur[id]){delete SNAP[k][id];TOMB[k][id]=now;DIRTY[k+'/'+id]=Math.random()}})}
+  S.log.forEach(l=>{if(!l.id){l.id=uid();DIRTY['log/'+l.id]=Math.random()}});
+  persistSync();pushSoon()}
+function cgChanged(){if(!SYNC_ROOT)return;CGU=Date.now();DIRTY.cg=Math.random();persistSync();pushSoon()}
+function recFor(p){const[k,id]=p.split('/');
+  if(k==='cg')return{lager:CG.lager,frost:CG.frost,u:CGU};
+  if(k==='log')return S.log.find(l=>l.id===id)||null;
+  const o=S[k].find(x=>x.id===id);return o?{...o}:{del:1,u:TOMB[k][id]||Date.now()}}
+function setSyn(ok){const e=$('#syn');if(e)e.textContent=SYNC_ROOT?(ok?'☁️ synchronisiert':'⚠️ offline, wird nachgeholt'):''}
+function pushSoon(){clearTimeout(pushT);pushT=setTimeout(()=>syncNow(),400)}
+async function push(){const keys=Object.keys(DIRTY);if(!keys.length)return;
+  const sent={},body={};keys.forEach(p=>{sent[p]=DIRTY[p];const r=recFor(p);if(r)body[p]=r});
+  const res=await fetch(SYNC_ROOT+'.json',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!res.ok)throw new Error('push');
+  keys.forEach(p=>{if(DIRTY[p]===sent[p])delete DIRTY[p]});persistSync()}
+async function pull(){const res=await fetch(SYNC_ROOT+'.json');if(!res.ok)throw new Error('pull');const R=(await res.json())||{};let ch=false;
+  for(const k of ['items','shop']){const rem=R[k]||{};
+    for(const id in rem){const r=rem[id],loc=S[k].find(x=>x.id===id);if(!r)continue;
+      if(r.del){if(loc&&(loc.u||0)<=r.u){S[k]=S[k].filter(x=>x.id!==id);delete SNAP[k][id];ch=true}TOMB[k][id]=Math.max(TOMB[k][id]||0,r.u);continue}
+      if(!loc){if((TOMB[k][id]||0)>=r.u)continue;S[k].push(r);SNAP[k][id]=sj(r);delete TOMB[k][id];ch=true}
+      else if((r.u||0)>(loc.u||0)){Object.keys(loc).forEach(x=>delete loc[x]);Object.assign(loc,r);SNAP[k][id]=sj(loc);ch=true}}}
+  const have=new Set(S.log.map(l=>l.id));
+  for(const id in (R.log||{})){if(!have.has(id)&&R.log[id]){S.log.push(R.log[id]);ch=true}}
+  const c=R.cg;if(c&&(c.u||0)>CGU){CG.lager=c.lager||[];CG.frost=c.frost||[];CGU=c.u;saveCG();ch=true}
+  if(ch){saveRaw();persistSync();pendingR=true}
+  if(pendingR){const a=document.activeElement;if(!(a&&a.closest&&a.closest('#main')&&/INPUT|SELECT/.test(a.tagName))){pendingR=false;render()}}}
+async function syncNow(){if(!SYNC_ROOT||!unlocked)return;try{await push();await pull();setSyn(true)}catch{setSyn(false)}}
+if(SYNC_ROOT){
+  if(!CGU&&(CG.lager.length||CG.frost.length)){CGU=Date.now();DIRTY.cg=Math.random()}
+  stamp();setSyn(true);
+  setInterval(syncNow,8000);setTimeout(syncNow,600);
+  addEventListener('online',syncNow);addEventListener('focus',syncNow);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncNow()})}
+/*ENDSYNC*/
 lockInit();
 if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
